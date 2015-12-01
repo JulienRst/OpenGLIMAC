@@ -1,2 +1,0 @@
-/home/lea/Documents/OpenGLIMAC/GLImac-Template-build/TP_template/CMakeFiles/TP_template_SDLtemplate.dir
-/home/lea/Documents/OpenGLIMAC/GLImac-Template-build/glimac/CMakeFiles/glimac.dir
