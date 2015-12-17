@@ -12,7 +12,9 @@ using namespace std;
 
 int main(int argc, char** argv) {
     // Initialize SDL and open a window
-    SDLWindowManager windowManager(900, 900, "GLImac");
+        //Méthode pour fixer l'aspect des pixels OUT OF BALANCE, TODO : se renseigner sur l'aspect des pixels et les techniques courantes associés pour faire ça
+    SDLWindowManager windowManager(1920, 1080, "GLImac");
+    glViewport((1920-1080)/2,0,1080,1080);
 
     // Initialize glew for OpenGL3+ support
     GLenum glewInitError = glewInit();
@@ -97,17 +99,17 @@ int main(int argc, char** argv) {
     // --------------------- ENVOIE DES VARIABLES UNIFORMES LIEES A LA LUMIERE
 
     //KD
-    glUniform3f(uKd,1.0f,1.0f,1.0f);
+    glUniform3f(uKd,0.0f,0.0f,0.0f); //Couleur de la lumière
     //KS
-    glUniform3f(uKs,1.0f,1.0f,1.0f);
+    glUniform3f(uKs,1.0f,1.0f,1.0f); //Couleur du matériel lorsqu'exposé à la lumière
     //SHININESS
-    glUniform1f(uShininess,0.5f);
+    glUniform1f(uShininess,0.5f); //Inversement proportionnelle au renvoie de la lumière (plus c'est élevé, moi ça absorbe la lumière)
     //LightIntensity
-    glUniform3f(uLightIntensity,0.5f,0.5f,0.5f);
+    glUniform3f(uLightIntensity,0.5f,0.5f,0.5f); //Intensité de la lumière
 
     // Application loop:
     bool done = false;
-
+    float count = 0.0;
     while(!done) {
         // Event loop:
         SDL_Event e;
@@ -116,14 +118,19 @@ int main(int argc, char** argv) {
                 done = true; // Leave the loop after this iteration
             }
         }
+        //glClear
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+        //Modification de la light_pos
+        count -= 0.0001f;
 
             // --------------------- ENVOIE DES VARIABLES UNIFORMES
         ProjMatrix = perspective(radians(70.f),1.f,0.1f,100.f);
         MVMatrix = translate(mat4(1.f),vec3(0.0f,0.0f,-5.0f));
         NormalMatrix = transpose(inverse(MVMatrix));
-        // ENVOIE DES VARIABLES UNIFORMES : LightDir et LightIntensity
-        vec4 lightDir = lightPos;
-
+        // ENVOIE DES VARIABLES UNIFORMES : LightDir
+        vec4 lightDir = lightPos + vec4(0.0f,0.0f + count,0.0f,1.0f);
         glUniform3f(uLightDir_vs,lightDir.x,lightDir.y,lightDir.z);
 
         glUniformMatrix4fv(uMVPMatrix, 1, GL_FALSE, value_ptr(ProjMatrix * MVMatrix));
@@ -140,7 +147,7 @@ int main(int argc, char** argv) {
          * HERE SHOULD COME THE RENDERING CODE
          *********************************/
          glBindVertexArray(0);
-         
+
         // Update the display
         windowManager.swapBuffers();
     }
