@@ -3,7 +3,7 @@ using namespace std;
 
 /*  Functions   */
 // Constructor, expects a filepath to a 3D model.
-Model::Model(GLchar* path)
+Model::Model(string path)
 {
     this->loadModel(path);
 }
@@ -159,7 +159,7 @@ vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type,
     return textures;
 }
 
-GLint Model::TextureFromFile(const char* path, string directory)
+GLint Model::TextureFromFile(const string path, string directory)
 {
     //Generate texture ID and load texture data
     // TODO use filepath class

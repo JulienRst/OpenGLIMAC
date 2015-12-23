@@ -21,14 +21,14 @@ using namespace std;
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
 
-GLint TextureFromFile(const char* path, string directory);
+GLint TextureFromFile(const string path, string directory);
 
 class Model
 {
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    Model(GLchar* path);
+    Model(string path);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
 
@@ -47,6 +47,6 @@ private:
     // Checks all material textures of a given type and loads the textures if they're not loaded yet.
     // The required info is returned as a Texture struct.
     vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
-    GLint TextureFromFile(const char* path, string directory);
+    GLint TextureFromFile(const string path, string directory);
 
 };

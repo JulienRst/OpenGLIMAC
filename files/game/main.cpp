@@ -11,6 +11,7 @@
 #include "engine/model.hpp"
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
+#include "engine/freefly.hpp"
 
 // -------- NAMESPACE -------------- //
 
@@ -50,6 +51,11 @@ int main(int argc, char** argv){
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
 
+    // Initialisation de la Caméra freefly
+
+    FreeFlyCamera camera = FreeFlyCamera();
+    mat4 viewMatrix;
+
 
     //Load & Compile Shader
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
@@ -76,11 +82,14 @@ int main(int argc, char** argv){
 
         //ENVOIE DES MATRICES
 
+        //Récupération de la viewMatrix de la Caméra
+
+        viewMatrix = camera.getViewMatrix();
+
         // Transformation matrices
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
-        glm::mat4 view = glm::mat4();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
         // Draw the loaded model
         glm::mat4 model;
