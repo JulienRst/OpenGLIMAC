@@ -42,7 +42,7 @@ int main(int argc, char** argv){
     std::cout << "OpenGL Version : " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEW Version : " << glewGetString(GLEW_VERSION) << std::endl;
 
-    // TODO : CHAMSEDINE CAMERA
+
 
     // Initialisation de GLEW
     glewExperimental = GL_TRUE;
@@ -85,7 +85,7 @@ int main(int argc, char** argv){
         // Draw the loaded model
         glm::mat4 model;
         model = glm::translate(model, glm::vec3(0.0f, -7.0f, -20.0f)); // Translate it down a bit so it's at the center of the scene
-        //model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)); // It's a bit too big for our scene, so scale it down
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f)); // It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
         ourModel.Draw(shader);

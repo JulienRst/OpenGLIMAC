@@ -1,1 +1,1 @@
-cd ./files/build/game && ./main
+cd ./files/build/game && ./_main
