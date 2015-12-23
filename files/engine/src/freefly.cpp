@@ -4,6 +4,7 @@
 using namespace std;
 using namespace glm;
 
+
 //Calcul les vecteurs Left, Front et Up à partir des angles Phi et Teta
 void FreeFlyCamera::computeDirectionVectors(){
     //Front Vector : F =(cos(θ)sin(ϕ), sin(θ), cos(θ)cos(ϕ))
@@ -18,7 +19,7 @@ void FreeFlyCamera::computeDirectionVectors(){
 FreeFlyCamera::FreeFlyCamera(){
     m_Position = vec3(0,0,0);
     m_fPhi = pi<float>();
-    m_fTheta = 0;
+    m_fTheta = 0.0f;
     computeDirectionVectors();
 }
 
@@ -39,5 +40,6 @@ void FreeFlyCamera::rotateUp(float degrees){
 }
 
 mat4 FreeFlyCamera::getViewMatrix(){
+    computeDirectionVectors();
     return lookAt(m_Position,m_Position + m_FrontVector,m_UpVector);
 }

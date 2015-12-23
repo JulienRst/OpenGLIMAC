@@ -56,6 +56,7 @@ int main(int argc, char** argv){
     FreeFlyCamera camera = FreeFlyCamera();
     mat4 viewMatrix;
 
+    // Initialisation de l'objet Mouse
 
     //Load & Compile Shader
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
@@ -75,10 +76,24 @@ int main(int argc, char** argv){
         //glClear
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         //Lancement des shaders
-
         shader.Use();
+
+        // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
+        if(windowManager.isKeyPressed(SDLK_z))
+            camera.moveFront(0.005);
+        if(windowManager.isKeyPressed(SDLK_q))
+            camera.moveLeft(0.005);
+        if(windowManager.isKeyPressed(SDLK_s))
+            camera.moveFront(-0.005);
+        if(windowManager.isKeyPressed(SDLK_d))
+            camera.moveLeft(-0.005);
+
+        // RECUPERATION DE LA SOURIS / UPDATE CAMERA
+
+
+        // ---------------------------- FIN RECUPERATION EVENTS
+
 
         //ENVOIE DES MATRICES
 
