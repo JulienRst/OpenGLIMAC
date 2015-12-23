@@ -1,45 +1,57 @@
 #include "engine/freefly.hpp"
 
-
-using namespace std;
-using namespace glm;
-
-
-//Calcul les vecteurs Left, Front et Up à partir des angles Phi et Teta
-void FreeFlyCamera::computeDirectionVectors(){
-    //Front Vector : F =(cos(θ)sin(ϕ), sin(θ), cos(θ)cos(ϕ))
-    m_FrontVector = vec3(cos(m_fTheta) * sin(m_fPhi),sin(m_fTheta), cos(m_fTheta)* cos(m_fPhi));
-    //Left Vector : L =(sin(ϕ+π/2), 0, cos(ϕ+π2))
-    m_LeftVector = vec3(sin(m_fPhi + pi<float>()/2),0,cos(m_fPhi + pi<float>()/2));
-    //Up Vector : U = F x L (utiliser la fonction cross)
-    m_UpVector = cross(m_FrontVector,m_LeftVector);
+glm::mat4 Camera::GetViewMatrix(){
+    return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
 }
 
-//Initialisation de la Caméra
-FreeFlyCamera::FreeFlyCamera(){
-    m_Position = vec3(0,0,0);
-    m_fPhi = pi<float>();
-    m_fTheta = 0.0f;
-    computeDirectionVectors();
+// void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime){
+//     GLfloat velocity = this->MovementSpeed * deltaTime;
+//     if (direction == FORWARD)
+//         this->Position += this->Front * velocity;
+//     if (direction == BACKWARD)
+//         this->Position -= this->Front * velocity;
+//     if (direction == LEFT)
+//         this->Position -= this->Right * velocity;
+//     if (direction == RIGHT)
+//         this->Position += this->Right * velocity;
+// }
+
+void Camera::MoveFront(float t){
+    this->Position += t * this->Front;
 }
 
-void FreeFlyCamera::moveLeft(float t){
-    m_Position += t * m_LeftVector;
+void Camera::MoveRight(float t){
+    this->Position += t * this->Right;
 }
 
-void FreeFlyCamera::moveFront(float t){
-    m_Position += t * m_FrontVector;
+void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch){
+    xoffset *= this->MouseSensitivity;
+    yoffset *= this->MouseSensitivity;
+
+    this->Yaw   += xoffset;
+    this->Pitch -= yoffset;
+
+    // Make sure that when pitch is out of bounds, screen doesn't get flipped
+    if (constrainPitch)
+    {
+        if (this->Pitch > 89.0f)
+            this->Pitch = 89.0f;
+        if (this->Pitch < -89.0f)
+            this->Pitch = -89.0f;
+    }
+
+    // Update Front, Right and Up Vectors using the updated Eular angles
+    this->updateCameraVectors();
 }
 
-void FreeFlyCamera::rotateLeft(float degrees){
-    m_fPhi += degrees * pi<float>() / 180;
-}
-
-void FreeFlyCamera::rotateUp(float degrees){
-    m_fTheta += degrees * pi<float>() / 180;
-}
-
-mat4 FreeFlyCamera::getViewMatrix(){
-    computeDirectionVectors();
-    return lookAt(m_Position,m_Position + m_FrontVector,m_UpVector);
+void Camera::updateCameraVectors(){
+    // Calculate the new Front vector
+    glm::vec3 front;
+    front.x = cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
+    front.y = sin(glm::radians(this->Pitch));
+    front.z = sin(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
+    this->Front = glm::normalize(front);
+    // Also re-calculate the Right and Up vector
+    this->Right = glm::normalize(glm::cross(this->Front, this->WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+    this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
 }

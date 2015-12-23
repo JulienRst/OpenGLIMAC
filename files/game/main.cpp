@@ -12,6 +12,7 @@
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
 #include "engine/freefly.hpp"
+#include "engine/mouse.hpp"
 
 // -------- NAMESPACE -------------- //
 
@@ -25,8 +26,8 @@ int main(int argc, char** argv){
 
     // -------- GLOBAL VARIABLE -------------- //
 
-    GLuint screenWidth = 1600;
-    GLuint screenHeight = 900;
+    GLuint screenWidth = 1920;
+    GLuint screenHeight = 1080;
 
 
     //Initialisation de la fenêtre
@@ -53,10 +54,12 @@ int main(int argc, char** argv){
 
     // Initialisation de la Caméra freefly
 
-    FreeFlyCamera camera = FreeFlyCamera();
+    Camera camera = Camera();
     mat4 viewMatrix;
 
     // Initialisation de l'objet Mouse
+
+    Mouse mouse;
 
     //Load & Compile Shader
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
@@ -65,6 +68,8 @@ int main(int argc, char** argv){
     Model ourModel("../../assets/models/nanosuit/nanosuit.obj");
 
     int loop = true;
+    float xOffset, yOffset;
+
     while(loop){
         // Event loop:
         SDL_Event e;
@@ -78,19 +83,26 @@ int main(int argc, char** argv){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //Lancement des shaders
         shader.Use();
-
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
+        xOffset = windowManager.getMousePosition().x - mouse.lastX - 960;
+        yOffset = windowManager.getMousePosition().y - mouse.lastY - 540;
+
+        mouse.lastX = windowManager.getMousePosition().x - 960;
+        mouse.lastY = windowManager.getMousePosition().y - 540;
+
+        camera.ProcessMouseMovement(xOffset,yOffset);
+
+
         if(windowManager.isKeyPressed(SDLK_z))
-            camera.moveFront(0.005);
+            camera.MoveFront(0.010);
         if(windowManager.isKeyPressed(SDLK_q))
-            camera.moveLeft(0.005);
+            camera.MoveRight(-0.010);
         if(windowManager.isKeyPressed(SDLK_s))
-            camera.moveFront(-0.005);
+            camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
-            camera.moveLeft(-0.005);
+            camera.MoveRight(0.010);
 
         // RECUPERATION DE LA SOURIS / UPDATE CAMERA
-
 
         // ---------------------------- FIN RECUPERATION EVENTS
 
@@ -99,7 +111,7 @@ int main(int argc, char** argv){
 
         //Récupération de la viewMatrix de la Caméra
 
-        viewMatrix = camera.getViewMatrix();
+        viewMatrix = camera.GetViewMatrix();
 
         // Transformation matrices
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
