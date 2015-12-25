@@ -5,6 +5,7 @@
 
 #include <glimac/glm.hpp>
 #include <glimac/SDLWindowManager.hpp>
+#include <glimac/Sphere.hpp>
 
 #include <GL/glew.h>
 
@@ -65,7 +66,8 @@ int main(int argc, char** argv){
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
 
     //Load Modele
-    Model ourModel("../../assets/models/nanosuit/nanosuit.obj");
+    Model nanosuit("../../assets/models/nanosuit/nanosuit.obj");
+    Model stormtrooper("../../assets/models/stormtrooper/Stormtrooper.obj");
 
     int loop = true;
     float xOffset, yOffset;
@@ -101,6 +103,10 @@ int main(int argc, char** argv){
             camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
             camera.MoveRight(0.010);
+        if(windowManager.isKeyPressed(SDLK_SPACE))
+            camera.MoveUp(0.010);
+        if(windowManager.isKeyPressed(SDLK_LSHIFT))
+            camera.MoveUp(-0.010);
 
         // RECUPERATION DE LA SOURIS / UPDATE CAMERA
 
@@ -123,8 +129,14 @@ int main(int argc, char** argv){
         model = glm::translate(model, glm::vec3(0.0f, -7.0f, -20.0f)); // Translate it down a bit so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f)); // It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        nanosuit.Draw(shader);
 
-        ourModel.Draw(shader);
+        model = glm::translate(model, glm::vec3(10.0f,0.0f,0.0f));
+        model = glm::scale(model,glm::vec3(4.0f,4.0f,4.0f));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        stormtrooper.Draw(shader);
+
+
 
         // Update the display
         windowManager.swapBuffers();

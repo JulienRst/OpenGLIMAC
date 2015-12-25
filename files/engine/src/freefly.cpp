@@ -24,6 +24,10 @@ void Camera::MoveRight(float t){
     this->Position += t * this->Right;
 }
 
+
+void Camera::MoveUp(float t){
+    this->Position += t * this->Up;
+}
 void Camera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch){
     xoffset *= this->MouseSensitivity;
     yoffset *= this->MouseSensitivity;

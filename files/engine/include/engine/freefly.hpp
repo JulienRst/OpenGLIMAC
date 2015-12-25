@@ -71,6 +71,7 @@ public:
     //void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
     void MoveFront(float t);
     void MoveRight(float t);
+    void MoveUp(float t);
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
