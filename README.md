@@ -1,12 +1,25 @@
 # OpenGLIMAC
 OpenGL / C++ Project for the second year of IMAC school
 
- - To run the project, create a "build" folder
- - cd into this new folder and run cmake ../GLImac-template
- - Now you can make the project simply using "make" cmd. 
- - Everytime you create a file into the GLImac-template you have to re-run the cmake thing
- - Else the make system run as always, everytime you change something into your code, make and ./path_of_file to run it. 
- - When you want to push your work into this repository please make sure you just git add .GLImac-template and not your build folder, we don't want it ;-)
+# Install & Running
+
+ - Install the program by running the command ./install at the directory root
+ - Launch it by running the command ./launch
+
+# For developper
+
+ - Update the build by running ./update
+ - Update the make by running ./cmake_update 
+
+# How the system work
+
+ - All the command are in the root, and there is a "files" folder aswell
+ - The folder you nver touch is build, it's the one created by the install and that is running by the launch
+ - All the cpp and hpp created by us are in the engine folder. If you want to add something, there you go. Whenever you want to include one of the engine files, you just have to include "engine/name_of_your_files.hpp" and the cmake do the rest. 
+ - The main.cpp and the shaders are in the folder named "game".
+ - All the 3D Models we use are in the assets folder. You could find sound and some kind of stuff there. 
+ - Glimac and Third-party are the library we used (Assimp, glm, gtest and Glimac). 
 
 
 Enjoy ;-)
+
