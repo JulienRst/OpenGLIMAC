@@ -86,11 +86,11 @@ int main(int argc, char** argv){
         //Lancement des shaders
         shader.Use();
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
-        xOffset = windowManager.getMousePosition().x - mouse.lastX - 960;
-        yOffset = windowManager.getMousePosition().y - mouse.lastY - 540;
+        xOffset = windowManager.getMousePosition().x - mouse.lastX;// - 960;
+        yOffset = windowManager.getMousePosition().y - mouse.lastY;// - 540;
 
-        mouse.lastX = windowManager.getMousePosition().x - 960;
-        mouse.lastY = windowManager.getMousePosition().y - 540;
+        mouse.lastX = windowManager.getMousePosition().x;// - 960;
+        mouse.lastY = windowManager.getMousePosition().y;// - 540;
 
         camera.ProcessMouseMovement(xOffset,yOffset);
 
@@ -130,9 +130,9 @@ int main(int argc, char** argv){
         model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f)); // It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
-
-        model = glm::translate(model, glm::vec3(10.0f,0.0f,0.0f));
-        model = glm::scale(model,glm::vec3(4.0f,4.0f,4.0f));
+        model = glm::mat4();
+        model = glm::translate(model, glm::vec3(10.0f,-7.0f,-20.0f));
+        model = glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         stormtrooper.Draw(shader);
 
