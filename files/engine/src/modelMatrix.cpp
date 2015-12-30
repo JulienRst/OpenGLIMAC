@@ -22,7 +22,7 @@ class ModelMatrix{
 
     }
     //creation d'un vector de pointeurs vers des modelmatrix. ça evite de devoir faire des free.
-    vector<unique_ptr<ModelMatrix>> ModelMatrix::loadModelsFromFile(string filepath){
+    vector<unique_ptr<ModelMatrix>> loadModelsFromFile(string filepath){
         ifstream myFile; //creation du ifstream qui contiendra les données du fichier
         myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
 

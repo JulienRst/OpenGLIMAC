@@ -4,7 +4,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
 #include <vector>
 using namespace std;
 // GL Includes
@@ -22,7 +21,6 @@ using namespace std;
 #include "engine/shader.hpp"
 #include "engine/modelMatrix.hpp"
 
-
 GLint TextureFromFile(const string path, string directory);
 
 class Model
@@ -30,7 +28,7 @@ class Model
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    Model(string path, modelMatrix modelmat);
+    Model(string path, ModelMatrix modelmat);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
 
@@ -38,7 +36,7 @@ private:
     /*  Model Data  */
     vector<Mesh> meshes;
     string directory;
-    modelMatrix modelmat;
+    ModelMatrix modelmat;
     vector<Texture> textures_loaded;    // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 
     /*  Functions   */

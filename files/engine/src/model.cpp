@@ -1,12 +1,13 @@
 #include "engine/model.hpp"
+
 using namespace std;
 
 /*  Functions   */
-// Constructor, expects a filepath to a 3D model.
-Model::Model(ModelMatrix modelmat)
+// Constructor, expects a modelmat with matrixes and filepath to a 3D model.
+Model(ModelMatrix mat)
 {
-    this->loadModel(modelmat->m_path);
-    this->m_modelmat = modelmat;
+    this->loadModel(mat->m_path);
+    this->m_modelmat = mat;
 }
 
 // Draws the model, and thus all its meshes
