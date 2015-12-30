@@ -1,5 +1,10 @@
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <cstdlib>
+#include <vector>
+#include <map>
+#include <set>
 
 #include <string>
 
@@ -65,9 +70,12 @@ int main(int argc, char** argv){
     //Load & Compile Shader
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
 
-    //Load Modele
-    Model nanosuit("../../assets/models/nanosuit/nanosuit.obj");
-    Model stormtrooper("../../assets/models/stormtrooper/Stormtrooper.obj");
+    //Load a list of ModelMatrix from a text file
+    vector<unique_ptr<ModelMatrix>> modelmatVector = loadModelsFromFile("files/assets/models/models.txt");
+
+    //Create the models with the path, translate and scale matrix
+    Model nanosuit(modelmatVector(0));
+    Model stormtrooper(modelmatVector(1));
 
     int loop = true;
     float xOffset, yOffset;
@@ -126,17 +134,15 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -7.0f, -20.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f)); // It's a bit too big for our scene, so scale it down
+        model = glm::translate(model, nanosuit->m_translate); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, nanosuit->m_scale); // It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
 
-        model = glm::translate(model, glm::vec3(10.0f,0.0f,0.0f));
-        model = glm::scale(model,glm::vec3(4.0f,4.0f,4.0f));
+        model = glm::translate(model, stormtrooper->m_translate);
+        model = glm::scale(model, stormtrooper->m_scale);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         stormtrooper.Draw(shader);
-
-
 
         // Update the display
         windowManager.swapBuffers();

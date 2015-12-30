@@ -3,9 +3,10 @@ using namespace std;
 
 /*  Functions   */
 // Constructor, expects a filepath to a 3D model.
-Model::Model(string path)
+Model::Model(ModelMatrix modelmat)
 {
-    this->loadModel(path);
+    this->loadModel(modelmat->m_path);
+    this->m_modelmat = modelmat;
 }
 
 // Draws the model, and thus all its meshes
