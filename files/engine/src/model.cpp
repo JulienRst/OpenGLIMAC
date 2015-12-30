@@ -4,9 +4,8 @@ using namespace std;
 
 /*  Functions   */
 // Constructor, expects a modelmat with matrixes and filepath to a 3D model.
-Model(ModelMatrix mat)
-{
-    this->loadModel(mat->m_path);
+Model::Model(ModelMatrix mat){
+    this->loadModel(mat.getPath());
     this->m_modelmat = mat;
 }
 

@@ -1,3 +1,4 @@
+#define GLM_FORCE_RADIANS
 #pragma once
 // Std. Includes
 #include <string>
@@ -28,7 +29,8 @@ class Model
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    Model(string path, ModelMatrix modelmat);
+    //Model(string path, ModelMatrix modelmat); Don't know from where this shit come from... #Chamsedine
+    Model(ModelMatrix mat);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
 
@@ -36,7 +38,7 @@ private:
     /*  Model Data  */
     vector<Mesh> meshes;
     string directory;
-    ModelMatrix modelmat;
+    ModelMatrix m_modelmat;
     vector<Texture> textures_loaded;    // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 
     /*  Functions   */
