@@ -28,6 +28,23 @@ using namespace glimac;
 
 // TODO Ajouter ici l'initialisation de la caméra de Chamse
 
+map<string, unique_ptr<Model> > modelsFromFile(string filepath){
+    ifstream myFile;                                                                                           //creation du ifstream qui contiendra les données du fichier
+    myFile.open(filepath);                                          //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
+    map<string, unique_ptr<Model> > models;
+    if (myFile.is_open()) {
+        string path, line;                                                                                       //path est une variable temporaire
+        float tx, ty, tz, sx, sy, sz;
+        while(getline(myFile, line)){                                                                   //tant qu'il existe une ligne après celle-ci{
+            istringstream lineStream(line);                                                            //on prend les données de la ligne suivante
+            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz;                  //on rentre les données de la ligne dans les différentes variables temporaires
+            models[path] = new Model(path, tx, ty, tz, sx, sy, sz);
+        }
+    }
+    myFile.close();   
+    return models;
+}
+
 int main(int argc, char** argv){
 
     // -------- GLOBAL VARIABLE -------------- //
@@ -72,27 +89,13 @@ int main(int argc, char** argv){
 
     //Load a list of ModelMatrix from a text file
     ///////////////
-    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
-    myFile.open("files/assets/models/models.txt"); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
-    vector<unique_ptr<ModelMatrix>> modelmatVector;
-    if (myFile.is_open()) {
-        string path, line;  //path est une variable temporaire
-        float tx, ty, tz, sx, sy, sz; //variables temporaires
-
-        while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
-            istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
-            unique_ptr<ModelMatrix> uniqueMat(new ModelMatrix(path, tx, ty, tz, sx, sy, sz)); //on crée la modelmatrix avec les variables temporaires 
-            modelmatVector.emplace_back(uniqueMat); //et on place la modelmatrix à la suite des autres dans le vector de modelmatrix
-
-        }
-    }
-    myFile.close();
-    ///////////////
+   map<string, unique_ptr<Model> > models = modelsFromFile("files/assets/models/models.txt");
+  
+    //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    Model nanosuit = new Model(modelmatVector.at(0));
-    Model stormtrooper = new Model(modelmatVector.at(1));
+    Model& nanosuit = models["nanosuit.obj"];
+    Model& stormtrooper = models["stormtrooper.obj"];
 
     int loop = true;
     float xOffset, yOffset;

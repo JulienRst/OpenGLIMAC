@@ -1,13 +1,13 @@
 #include "engine/model.hpp"
 
 using namespace std;
+using namespace glm;
 
 /*  Functions   */
-// Constructor, expects a modelmat with matrixes and filepath to a 3D model.
-Model::Model(unique_ptr<ModelMatrix> uniquemat){
-    ModelMatrix* mat = uniquemat.get();
-    this->loadModel(mat->getPath());
-    this->m_modelmat = *mat;
+// Constructor, expects filepath and floats of matrices translate and scale
+Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz)
+:   m_modelmat(glm::translate(glm::vec3(tx, ty, tz)) * glm::rotate(glm::vec3(sx, sy, sz)) {
+    this->loadModel(path);
 }
 
 // Draws the model, and thus all its meshes
@@ -17,15 +17,11 @@ void Model::Draw(Shader shader)
         this->meshes[i].Draw(shader);
 }
 
-ModelMatrix Model::getModelMatrix(){
-    return m_modelmat;
-}
-
 /*  Model Data  */
 vector<Mesh> meshes;
 string directory;
 vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-ModelMatrix m_modelmat;
+mat4 m_modelmat;
 
 /*  Functions   */
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

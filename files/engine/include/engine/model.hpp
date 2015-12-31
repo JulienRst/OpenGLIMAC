@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
+#include <map>
 using namespace std;
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
@@ -17,10 +18,10 @@ using namespace std;
 #include <assimp/postprocess.h>
 
 #include <glimac/Image.hpp>
+#include <glimac/glm.hpp>
 
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
-#include "engine/modelMatrix.hpp"
 #include <memory>
 
 GLint TextureFromFile(const string path, string directory);
@@ -30,17 +31,15 @@ class Model
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    Model(unique_ptr<ModelMatrix> uniquemat);
+    Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
-
-    ModelMatrix getModelMatrix();
 
 private:
     /*  Model Data  */
     vector<Mesh> meshes;
     string directory;
-    ModelMatrix m_modelmat;
+    glm::mat4 m_modelmat;
     vector<Texture> textures_loaded;    // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 
     /*  Functions   */
