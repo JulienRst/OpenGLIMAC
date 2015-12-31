@@ -21,6 +21,7 @@ using namespace std;
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
 #include "engine/modelMatrix.hpp"
+#include <memory>
 
 GLint TextureFromFile(const string path, string directory);
 
@@ -29,10 +30,11 @@ class Model
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    //Model(string path, ModelMatrix modelmat); Don't know from where this shit come from... #Chamsedine
-    Model(ModelMatrix mat);
+    Model(unique_ptr<ModelMatrix> uniquemat);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
+
+    ModelMatrix getModelMatrix();
 
 private:
     /*  Model Data  */

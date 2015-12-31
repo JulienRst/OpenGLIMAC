@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <set>
-
+#include <memory>
 #include <string>
 
 #include <glimac/glm.hpp>
@@ -71,11 +71,28 @@ int main(int argc, char** argv){
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
 
     //Load a list of ModelMatrix from a text file
-    vector<unique_ptr<ModelMatrix>> modelmatVector = loadModelsFromFile("files/assets/models/models.txt");
+    ///////////////
+    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
+    myFile.open("files/assets/models/models.txt"); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
+    vector<unique_ptr<ModelMatrix>> modelmatVector;
+    if (myFile.is_open()) {
+        string path, line;  //path est une variable temporaire
+        float tx, ty, tz, sx, sy, sz; //variables temporaires
+
+        while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
+            istringstream lineStream(line); //on prend les données de la ligne suivante
+            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
+            unique_ptr<ModelMatrix> uniqueMat(new ModelMatrix(path, tx, ty, tz, sx, sy, sz)); //on crée la modelmatrix avec les variables temporaires 
+            modelmatVector.emplace_back(uniqueMat); //et on place la modelmatrix à la suite des autres dans le vector de modelmatrix
+
+        }
+    }
+    myFile.close();
+    ///////////////
 
     //Create the models with the path, translate and scale matrix
-    Model nanosuit(modelmatVector(0));
-    Model stormtrooper(modelmatVector(1));
+    Model nanosuit = new Model(modelmatVector.at(0));
+    Model stormtrooper = new Model(modelmatVector.at(1));
 
     int loop = true;
     float xOffset, yOffset;
@@ -134,13 +151,13 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-        model = glm::translate(model, nanosuit->m_translate); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, nanosuit->m_scale); // It's a bit too big for our scene, so scale it down
+        model = glm::translate(model, nanosuit.getModelMatrix().getTranslate()); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, nanosuit.getModelMatrix().getScale()); // It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
 
-        model = glm::translate(model, stormtrooper->m_translate);
-        model = glm::scale(model, stormtrooper->m_scale);
+        model = glm::translate(model, stormtrooper.getModelMatrix().getTranslate());
+        model = glm::scale(model, stormtrooper.getModelMatrix().getScale());
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         stormtrooper.Draw(shader);
 

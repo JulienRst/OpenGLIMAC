@@ -4,9 +4,10 @@ using namespace std;
 
 /*  Functions   */
 // Constructor, expects a modelmat with matrixes and filepath to a 3D model.
-Model::Model(ModelMatrix mat){
-    this->loadModel(mat.getPath());
-    this->m_modelmat = mat;
+Model::Model(unique_ptr<ModelMatrix> uniquemat){
+    ModelMatrix* mat = uniquemat.get();
+    this->loadModel(mat->getPath());
+    this->m_modelmat = *mat;
 }
 
 // Draws the model, and thus all its meshes
@@ -16,10 +17,15 @@ void Model::Draw(Shader shader)
         this->meshes[i].Draw(shader);
 }
 
+ModelMatrix Model::getModelMatrix(){
+    return m_modelmat;
+}
+
 /*  Model Data  */
 vector<Mesh> meshes;
 string directory;
 vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+ModelMatrix m_modelmat;
 
 /*  Functions   */
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

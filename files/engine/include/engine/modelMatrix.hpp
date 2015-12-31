@@ -20,15 +20,16 @@ using namespace glm;
 
 class ModelMatrix{
     private:
+    vec3 m_translate;
+    vec3 m_scale;
     string m_path;
-    vec3 m_translate, m_scale;
 
     public:
     ModelMatrix();
-    string getPath();
     ModelMatrix(string path, float tx, float ty, float tz,
                 float sx, float sy, float sz);
 
-    //creation d'un vector de pointeurs vers des modelmatrix. ça evite de devoir faire des free.
-    vector<unique_ptr<ModelMatrix>> loadModelsFromFile(string filepath);
+    string getPath();
+    vec3 getTranslate();
+    vec3 getScale();
 };
