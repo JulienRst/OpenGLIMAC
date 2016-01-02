@@ -14,8 +14,7 @@
 #include "engine/shader.hpp"
 #include "engine/freefly.hpp"
 #include "engine/mouse.hpp"
-// #include "engine/music.hpp"
-#include "../include/engine/music.hpp" //Normalement c'est lui qui accède correctement au fichier
+#include "engine/music.hpp"
 
 // -------- NAMESPACE -------------- //
 
@@ -76,6 +75,7 @@ int main(int argc, char** argv){
 
  // ****************************** SOUNDS LOADING ****************************** //
 
+ 	int k;  ------POUR SOUDS LOADING------
 	InitAudio();
 
  	// On initialise la SDL
