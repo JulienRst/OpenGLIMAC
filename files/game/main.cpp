@@ -38,7 +38,7 @@ map<string, unique_ptr<Model> > modelsFromFile(string filepath){
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
             lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
-            models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
+            models[path].make_unique(new Model(path, tx, ty, tz, sx, sy, sz));
         }
     }
     myFile.close();   
@@ -94,8 +94,8 @@ int main(int argc, char** argv){
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    Model& nanosuit = *models["nanosuit.obj"];
-    Model& stormtrooper = *models["stormtrooper.obj"];
+    auto nanosuit = models["nanosuit.obj"];
+    auto stormtrooper = models["stormtrooper.obj"];
 
     int loop = true;
     float xOffset, yOffset;
@@ -154,11 +154,11 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-        model = nanosuit.getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        model = nanosuit->getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
 
-        model = stormtrooper.getModelMatrix();
+        model = stormtrooper->getModelMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         stormtrooper.Draw(shader);
 
