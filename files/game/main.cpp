@@ -93,7 +93,7 @@ int main(int argc, char** argv){
         mouse.lastY = windowManager.getMousePosition().y;// - 540;
 
         camera.ProcessMouseMovement(xOffset,yOffset);
-
+        camera.ProcessJump();
 
         if(windowManager.isKeyPressed(SDLK_z))
             camera.MoveFront(0.010);
@@ -107,6 +107,8 @@ int main(int argc, char** argv){
         //     camera.MoveUp(0.010);
         // if(windowManager.isKeyPressed(SDLK_LSHIFT))
         //     camera.MoveUp(-0.010);
+        if(windowManager.isKeyPressed(SDLK_SPACE))
+            camera.launchJump();
         if(windowManager.isKeyPressed(SDLK_LSHIFT)){
             camera.isShiftPressed = true;
         } else {

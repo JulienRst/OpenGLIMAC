@@ -69,3 +69,21 @@ void Camera::updateCameraVectors(){
     this->Right = glm::normalize(glm::cross(this->Front, this->WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     this->Up    = glm::normalize(glm::cross(this->Right, this->Front));
 }
+
+void Camera::launchJump(){
+    if(!isInJump){
+        isInJump = true;
+        jump = -1.414f;
+    }
+}
+
+void Camera::ProcessJump(){
+    if(isInJump){
+        this->Position.y = - (jump * jump) + 2;
+        this->jump += 0.01;
+        if(jump >= 1.414f){
+            this->Position.y = 0.0f;
+            isInJump = false;
+        }
+    }
+}
