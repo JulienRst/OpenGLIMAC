@@ -41,7 +41,7 @@ map<string, unique_ptr<Model> > modelsFromFile(string filepath){
             models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
         }
     }
-    myFile.close();   
+    myFile.close();
     return models;
 }
 
@@ -89,13 +89,15 @@ int main(int argc, char** argv){
 
     //Load a list of ModelMatrix from a text file
     ///////////////
+    std::cout << "avant models" << std::endl;
    map<string, unique_ptr<Model> > models = modelsFromFile("files/assets/models/models.txt");
-  
+   std::cout << "Models from file" << std::endl;
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
     Model& nanosuit = *models["nanosuit.obj"];
     Model& stormtrooper = *models["stormtrooper.obj"];
+    std::cout << "Models created" << std::endl;
 
     int loop = true;
     float xOffset, yOffset;
@@ -154,7 +156,9 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
+        std::cout << "Avant nanosuit" << std::endl;
         model = nanosuit.getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        std::cout << "nanosuit model created" << std::endl;
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
 

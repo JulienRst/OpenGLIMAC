@@ -21,7 +21,7 @@ void Model::Draw(Shader shader)
 vector<Mesh> meshes;
 string directory;
 vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-mat4 m_modelmat;
+glm::mat4 m_modelmat;
 
 /*  Functions   */
 
