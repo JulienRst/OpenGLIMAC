@@ -17,11 +17,21 @@ glm::mat4 Camera::GetViewMatrix(){
 // }
 
 void Camera::MoveFront(float t){
-    this->Position += t * this->Front;
+    float x=1;
+    if(isShiftPressed)
+        x=2;
+    this->Position.z += t * x * this->Front.z;
+    this->Position.x += t * x * this->Front.x;
+    //* this->Front;
 }
 
 void Camera::MoveRight(float t){
-    this->Position += t * this->Right;
+    float x=1;
+    if(isShiftPressed)
+        x=2;
+    this->Position.x += t * x * this->Right.x;
+    this->Position.z += t * x * this->Right.z;
+    //* this->Right;
 }
 
 

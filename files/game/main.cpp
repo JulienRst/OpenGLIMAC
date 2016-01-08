@@ -103,10 +103,15 @@ int main(int argc, char** argv){
             camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
             camera.MoveRight(0.010);
-        if(windowManager.isKeyPressed(SDLK_SPACE))
-            camera.MoveUp(0.010);
-        if(windowManager.isKeyPressed(SDLK_LSHIFT))
-            camera.MoveUp(-0.010);
+        // if(windowManager.isKeyPressed(SDLK_SPACE))
+        //     camera.MoveUp(0.010);
+        // if(windowManager.isKeyPressed(SDLK_LSHIFT))
+        //     camera.MoveUp(-0.010);
+        if(windowManager.isKeyPressed(SDLK_LSHIFT)){
+            camera.isShiftPressed = true;
+        } else {
+            camera.isShiftPressed = false;
+        }
 
         // RECUPERATION DE LA SOURIS / UPDATE CAMERA
 
