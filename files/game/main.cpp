@@ -38,6 +38,7 @@ map<string, unique_ptr<Model> > modelsFromFile(string filepath){
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
             lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
+            std::cout << "path = " << path << std::endl;
             models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
         }
     }
