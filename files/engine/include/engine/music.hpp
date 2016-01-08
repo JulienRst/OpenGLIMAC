@@ -22,7 +22,7 @@
 
 // #include <stdlib.h>
 // #include <stdio.h>
-#include <../../..//home/lea/SDL-1.2.15/include/SDL.h>
+//#include <../../..//home/lea/SDL-1.2.15/include/SDL.h>
 //#include <../../..//home/lea/SDL-1.2.15/include/SDL_mixer.h>
 
 
