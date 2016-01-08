@@ -95,9 +95,12 @@ int main(int argc, char** argv){
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    Model& nanosuit = *models["nanosuit.obj"];
-    Model& stormtrooper = *models["stormtrooper.obj"];
-    std::cout << "Models created" << std::endl;
+    std::cout << "creation nanosuit ?" << std::endl;
+    // auto nanosuit = models["nanosuit.obj"];
+    // std::cout << "nanosuit created" << std::endl;
+    // Model& stormtrooper = *models["stormtrooper.obj"];
+    // std::cout << "stormtrooper created" << std::endl;
+
 
     int loop = true;
     float xOffset, yOffset;
@@ -156,15 +159,15 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-        std::cout << "Avant nanosuit" << std::endl;
-        model = nanosuit.getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
-        std::cout << "nanosuit model created" << std::endl;
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        nanosuit.Draw(shader);
 
-        model = stormtrooper.getModelMatrix();
+        cout << "Before nanosuit" << endl;
+        model = (*models["nanosuit.obj"]).getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        stormtrooper.Draw(shader);
+        (*models["nanosuit.obj"]).Draw(shader);
+        cout << "After nanosuit" << endl;
+        model = (*models["stormtrooper.obj"]).getModelMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        (*models["stormtrooper.obj"]).Draw(shader);
 
         // Update the display
         windowManager.swapBuffers();
