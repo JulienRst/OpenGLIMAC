@@ -29,16 +29,16 @@ using namespace glimac;
 // TODO Ajouter ici l'initialisation de la caméra de Chamse
 
 map<string, unique_ptr<Model> > modelsFromFile(string filepath){
-    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
-    myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
+    ifstream myFile;                                                                                           //creation du ifstream qui contiendra les données du fichier
+    myFile.open(filepath);                                          //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
     map<string, unique_ptr<Model> > models;
     if (myFile.is_open()) {
-        string path, line; //path est une variable temporaire
+        string path, line;                                                                                       //path est une variable temporaire
         float tx, ty, tz, sx, sy, sz;
-        while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
-            istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
-            models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
+        while(getline(myFile, line)){                                                                   //tant qu'il existe une ligne après celle-ci{
+            istringstream lineStream(line);                                                            //on prend les données de la ligne suivante
+            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz;                  //on rentre les données de la ligne dans les différentes variables temporaires
+            models[path] = new Model(path, tx, ty, tz, sx, sy, sz);
         }
     }
     myFile.close();   
@@ -94,8 +94,8 @@ int main(int argc, char** argv){
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    Model& nanosuit = *models["nanosuit.obj"];
-    Model& stormtrooper = *models["stormtrooper.obj"];
+    Model& nanosuit = models["nanosuit.obj"];
+    Model& stormtrooper = models["stormtrooper.obj"];
 
     int loop = true;
     float xOffset, yOffset;
@@ -154,7 +154,7 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-        model = nanosuit.getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        model = nanosuit.getModelMatrix()); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
 

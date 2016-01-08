@@ -6,7 +6,7 @@ using namespace glm;
 /*  Functions   */
 // Constructor, expects filepath and floats of matrices translate and scale
 Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz)
-:   m_modelmat(glm::translate(m_modelmat, glm::vec3(tx, ty, tz)) * glm::rotate(m_modelmat, 0.f, glm::vec3(sx, sy, sz)) ) {
+:   m_modelmat(glm::translate(m_modelmat, glm::vec3(tx, ty, tz)) * glm::rotate(m_modelmat, 0.f, glm::vec3(sx, sy, sz))) {
     this->loadModel(path);
 }
 
@@ -24,11 +24,6 @@ vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optim
 mat4 m_modelmat;
 
 /*  Functions   */
-
-glm::mat4 Model::getModelMatrix(){
-    return m_modelmat;
-}
-
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)
 {

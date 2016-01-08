@@ -34,6 +34,7 @@ public:
     Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
+    glm::mat4 getModelMatrix();
 
 private:
     /*  Model Data  */
