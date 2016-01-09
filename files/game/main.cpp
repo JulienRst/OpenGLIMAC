@@ -92,11 +92,13 @@ int main(int argc, char** argv){
         //Lancement des shaders
         shader.Use();
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
+
         xOffset = windowManager.getMousePosition().x - mouse.lastX;
         yOffset = windowManager.getMousePosition().y - mouse.lastY;
 
         mouse.lastX = windowManager.getMousePosition().x;
         mouse.lastY = windowManager.getMousePosition().y;
+
 
         camera.ProcessMouseMovement(xOffset,yOffset);
         camera.ProcessJump();
@@ -108,17 +110,18 @@ int main(int argc, char** argv){
         if(windowManager.isKeyPressed(SDLK_s))
         camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
+
         camera.MoveRight(0.010);
         // if(windowManager.isKeyPressed(SDLK_SPACE))
-        // camera.MoveUp(0.010);
+        //     camera.MoveUp(0.010);
         // if(windowManager.isKeyPressed(SDLK_LSHIFT))
-        // camera.MoveUp(-0.010);
+        //     camera.MoveUp(-0.010);
         if(windowManager.isKeyPressed(SDLK_SPACE))
-        camera.launchJump();
+            camera.launchJump();
         if(windowManager.isKeyPressed(SDLK_LSHIFT)){
-        camera.isShiftPressed = true;
+            camera.isShiftPressed = true;
         } else {
-        camera.isShiftPressed = false;
+            camera.isShiftPressed = false;
         }
 
         // RECUPERATION DE LA SOURIS / UPDATE CAMERA
