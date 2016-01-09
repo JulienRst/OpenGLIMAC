@@ -17,11 +17,9 @@
 // Regardez pas ça c'est pas regardable de toute manière !
 
 
-
-
 // ***1***
 #include "engine/music.hpp"
-
+//#include "glimac/include/glimac/SDLWindowManager.hpp"
 
 
 //Initialisation de l'audio dans le jeu
@@ -80,31 +78,6 @@ void AdjustChannelVolume(int channel, int volume){
 	volume = (volume < 0) ? 0 : volume;
 	Mix_Volume(channel, volume);
 }
-
-
-
-
-// ***2***
-// PREMIER TEST
-
-
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <../../SDL/SDL_mixer.h>
-// #include <../../SDL/SDL.h>
-// #include <GL/gl.h>
-// #include <GL/glu.h>
-
-
-// int main ( int argc, char* argv [])
-// {
-//     // On initialise la SDL
-//     if(SDL_Init(SDL_INIT_VIDEO)==-1)
-//     {
-//         fprintf(stderr, "Impossible de charger la SDL, %s \n", SDL_GetError());
-//         exit(EXIT_FAILURE);
-//     }
-// }
 
 
 

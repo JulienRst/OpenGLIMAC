@@ -25,6 +25,8 @@
 //#include <../../..//home/lea/SDL-1.2.15/include/SDL.h>
 //#include <../../..//home/lea/SDL-1.2.15/include/SDL_mixer.h>
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 
 //Tout les noms de sons à avoir
 typedef enum{

@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <string>
+#include <vector>
 
 #include <glimac/glm.hpp>
 #include <glimac/SDLWindowManager.hpp>
@@ -15,7 +16,10 @@
 #include "engine/freefly.hpp"
 #include "engine/mouse.hpp"
 // #include "engine/music.hpp"
-#include "../include/engine/music.hpp" //Normalement c'est lui qui accède correctement au fichier
+#include "engine/music.hpp" //Normalement c'est lui qui accède correctement au fichier
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 
 // -------- NAMESPACE -------------- //
 
@@ -78,15 +82,9 @@ int main(int argc, char** argv){
 
 	InitAudio();
 
- 	// On initialise la SDL
-     if(SDL_Init(SDL_INIT_VIDEO)==-1)
-     {
-         fprintf(stderr, "Impossible de charger la SDL, %s \n", SDL_GetError());
-         exit(EXIT_FAILURE);
-     }
-
  	//Sons de base
- 	niveau_4->soundList[0] = LoadSound("../sounds/batman_saut.wav");
+    vector<Mix_Chunk*> soundList;
+ 	soundList.push_back(LoadSound("assets/sounds/batman_saut.wav"));
  // 	niveau_4->soundList[1] = LoadSound("../sounds/racket.wav");
  //     niveau_4->soundList[2] = LoadSound("sounds/brick.wav");
  // 	niveau_4->soundList[3] = LoadSound("sounds/bonus.wav");
@@ -100,7 +98,7 @@ int main(int argc, char** argv){
  	// niveau_4->soundList[9] = LoadSound("sounds/girls/girl04.wav");
 
  	//Musique du menu !!
- 	niveau_4->musicList[0] = LoadMusic("../sounds/bruit_menu.mp3");
+ 	//niveau_4->musicList[0] = LoadMusic("assets/sounds/bruit_menu.mp3");
 
  	//PlayMusic(opening, -1);
  	// for(k = 0; k < 10; k++){
