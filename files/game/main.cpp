@@ -28,26 +28,34 @@ using namespace glimac;
 
 // TODO Ajouter ici l'initialisation de la caméra de Chamse
 
-map<string, unique_ptr<Model> > modelsFromFile(string filepath){
+map<string, unique_ptr<Model> > modelsFromFile(string const& filepath){
     ifstream myFile; //creation du ifstream qui contiendra les données du fichier
     myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
     map<string, unique_ptr<Model> > models;
-    if (myFile.is_open()) {
         string path, line; //path est une variable temporaire
+        string stx, sty, stz, ssx, ssy, ssz;
         float tx, ty, tz, sx, sy, sz;
+         if (!myFile.is_open()){
+             std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
+         }
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
-            std::cout << "path = " << path << std::endl;
+            lineStream >> path >> stx >> sty >> stz >> ssx >> ssy >> ssz; //on rentre les données de la ligne dans les différentes variables temporaires
+            tx = stof(stx);
+            ty = stof(sty);
+            tz = stof(stz);
+            sx = stof(ssx);
+            sy = stof(ssy);
+            sz = stof(ssz);
             models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
         }
-    }
     myFile.close();
     return models;
 }
 
 int main(int argc, char** argv){
 
+    FilePath app = FilePath(argv[0]).dirPath();
     // -------- GLOBAL VARIABLE -------------- //
     FilePath app = FilePath(argv[0]).dirPath();
 
@@ -69,8 +77,6 @@ int main(int argc, char** argv){
     std::cout << "OpenGL Version : " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEW Version : " << glewGetString(GLEW_VERSION) << std::endl;
 
-
-
     // Initialisation de GLEW
     glewExperimental = GL_TRUE;
     glewInit();
@@ -91,17 +97,13 @@ int main(int argc, char** argv){
 
     //Load a list of ModelMatrix from a text file
     ///////////////
-    std::cout << "avant models" << std::endl;
-   map<string, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../files/assets/models/models.txt"));
-   std::cout << "Models from file" << std::endl;
+    map<string, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../../files/assets/models/models.txt"));
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    std::cout << "creation nanosuit ?" << std::endl;
-    // auto nanosuit = models["nanosuit.obj"];
-    // std::cout << "nanosuit created" << std::endl;
-    // Model& stormtrooper = *models["stormtrooper.obj"];
-    // std::cout << "stormtrooper created" << std::endl;
+    // Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
+    Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
+    //Model& stormtrooper = *models["./../../../files/assets/models/stormtrooper/Stormtrooper.obj"];
 
 
     int loop = true;
@@ -121,27 +123,34 @@ int main(int argc, char** argv){
         //Lancement des shaders
         shader.Use();
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
-        xOffset = windowManager.getMousePosition().x - mouse.lastX - 960;
-        yOffset = windowManager.getMousePosition().y - mouse.lastY - 540;
+        xOffset = windowManager.getMousePosition().x - mouse.lastX;
+        yOffset = windowManager.getMousePosition().y - mouse.lastY;
 
-        mouse.lastX = windowManager.getMousePosition().x - 960;
-        mouse.lastY = windowManager.getMousePosition().y - 540;
+        mouse.lastX = windowManager.getMousePosition().x;
+        mouse.lastY = windowManager.getMousePosition().y;
 
         camera.ProcessMouseMovement(xOffset,yOffset);
-
+        camera.ProcessJump();
 
         if(windowManager.isKeyPressed(SDLK_z))
-            camera.MoveFront(0.010);
+        camera.MoveFront(0.010);
         if(windowManager.isKeyPressed(SDLK_q))
-            camera.MoveRight(-0.010);
+        camera.MoveRight(-0.010);
         if(windowManager.isKeyPressed(SDLK_s))
-            camera.MoveFront(-0.010);
+        camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
-            camera.MoveRight(0.010);
+        camera.MoveRight(0.010);
+        // if(windowManager.isKeyPressed(SDLK_SPACE))
+        // camera.MoveUp(0.010);
+        // if(windowManager.isKeyPressed(SDLK_LSHIFT))
+        // camera.MoveUp(-0.010);
         if(windowManager.isKeyPressed(SDLK_SPACE))
-            camera.MoveUp(0.010);
-        if(windowManager.isKeyPressed(SDLK_LSHIFT))
-            camera.MoveUp(-0.010);
+        camera.launchJump();
+        if(windowManager.isKeyPressed(SDLK_LSHIFT)){
+        camera.isShiftPressed = true;
+        } else {
+        camera.isShiftPressed = false;
+        }
 
         // RECUPERATION DE LA SOURIS / UPDATE CAMERA
 
@@ -161,16 +170,12 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-
-        cout << "Before nanosuit" << endl;
-        model = (*models["nanosuit.obj"]).getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        model = nanosuit.getModelMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        (*models["nanosuit.obj"]).Draw(shader);
-        cout << "After nanosuit" << endl;
-        model = (*models["stormtrooper.obj"]).getModelMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        (*models["stormtrooper.obj"]).Draw(shader);
-
+        nanosuit.Draw(shader);
+        // model = stormtrooper.getModelMatrix();
+        // glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        // stormtrooper.Draw(shader);
         // Update the display
         windowManager.swapBuffers();
     }

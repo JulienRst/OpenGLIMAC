@@ -5,23 +5,21 @@ using namespace glm;
 
 /*  Functions   */
 // Constructor, expects filepath and floats of matrices translate and scale
-Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz)
-:   m_modelmat(glm::translate(m_modelmat, glm::vec3(tx, ty, tz)) * glm::rotate(m_modelmat, 0.f, glm::vec3(sx, sy, sz)) ) {
+Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz){
+    m_modelmat = mat4();
+    m_modelmat = translate(m_modelmat, vec3(tx, ty, tz));
+    m_modelmat = scale(m_modelmat, vec3(sx, sy, sz));
+
     this->loadModel(path);
 }
 
 // Draws the model, and thus all its meshes
 void Model::Draw(Shader shader)
 {
-    for(GLuint i = 0; i < this->meshes.size(); i++)
+    for(GLuint i = 0; i < this->meshes.size(); i++){
         this->meshes[i].Draw(shader);
+    }
 }
-
-/*  Model Data  */
-vector<Mesh> meshes;
-string directory;
-vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-glm::mat4 m_modelmat;
 
 /*  Functions   */
 
