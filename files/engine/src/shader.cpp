@@ -1,6 +1,8 @@
 #include "engine/shader.hpp"
 
-Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath)
+using namespace glimac;
+
+Shader::Shader(const FilePath vertexPath, const FilePath fragmentPath)
 {
     // 1. Retrieve the vertex/fragment source code from filePath
     std::string vertexCode;

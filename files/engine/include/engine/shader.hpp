@@ -5,9 +5,10 @@
 #include <sstream>
 #include <iostream>
 
+#include <glimac/FilePath.hpp>
+
 #include <GL/glew.h> // Include glew to get all the required OpenGL headers
 
-using namespace std;
 
 class Shader
 {
@@ -15,7 +16,7 @@ public:
   	// The program ID
 	GLuint Program;
 	// Constructor reads and builds the shader
-	Shader(const GLchar* vertexPath, const GLchar* fragmentPath);
+	Shader(const glimac::FilePath vertexPath, const glimac::FilePath fragmentPath);
   	// Use the program
   	void Use();
 };

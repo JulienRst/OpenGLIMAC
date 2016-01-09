@@ -36,7 +36,7 @@ using namespace glimac;
 
 int main(int argc, char** argv){
 
-    FilePath app = FilePath(argv[0]).dirPath();
+    FilePath app = FilePath(argv[0]).dirPath() + "../";
     // -------- GLOBAL VARIABLE -------------- //
 
     GLuint screenWidth = 1920;
@@ -65,7 +65,7 @@ int main(int argc, char** argv){
 
     // Initialisation des models
 
-    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../../files/assets/models/models.txt"));
+    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
 
     // Initialisation de la Caméra freefly
 
@@ -78,7 +78,7 @@ int main(int argc, char** argv){
 
     //Load & Compile Shader
 
-    Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
+    Shader shader(app + "shaders/model_loading.vs",app + "shaders/model_loading.frag");
 
 
     int loop = true;
@@ -101,15 +101,15 @@ int main(int argc, char** argv){
     // ------------------- MENU MANAGE ----------------------
 
     //Music Menu
-    musicList.push_back(LoadMusic("../../assets/sounds/bruit_menu.mp3"));
+    musicList.push_back(LoadMusic((app + "assets/sounds/bruit_menu.mp3").c_str()));
     PlayMusic(musicList[0], -1); // -1 to load at infinity
     //Sound Menu
-    chunkList.push_back(LoadSound("../../assets/sounds/footstep_1pas.ogg"));
+    chunkList.push_back(LoadSound((app + "assets/sounds/footstep_1pas.ogg").c_str()));
     AdjustChannelVolume(-1, MIX_MAX_VOLUME/10);//Dicrease the music volume with '/10'
     // print the average volume
     //printf("Average volume is %d\n",Mix_Volume(-1,-1));
-
-    bool isUpPressed = false;
+    Uint32 lastFootStep = 0;
+    Uint32 limit = 600;
     while(loop){
         // Event loop:
         SDL_Event e;
@@ -138,30 +138,37 @@ int main(int argc, char** argv){
         camera.ProcessJump();
 
         if(windowManager.isKeyPressed(SDLK_z)){
-            isUpPressed = true;
             camera.MoveFront(0.010);
-            PlaySound(chunkList[0]);
+            if(SDL_GetTicks() - lastFootStep > limit){
+                PlaySound(chunkList[0]);
+                lastFootStep = SDL_GetTicks();
+            }
         }
 
         if(windowManager.isKeyPressed(SDLK_q)){
             camera.MoveRight(-0.010);
-            if(!isUpPressed){
+            if(SDL_GetTicks() - lastFootStep > limit){
                 PlaySound(chunkList[0]);
-            }else {
-            isUpPressed = false;
+                lastFootStep = SDL_GetTicks();
             }
         }
         if(windowManager.isKeyPressed(SDLK_s)){
             camera.MoveFront(-0.010);
-            PlaySound(chunkList[0]);
+            if(SDL_GetTicks() - lastFootStep > limit){
+                PlaySound(chunkList[0]);
+                lastFootStep = SDL_GetTicks();
+            }
         }
         if(windowManager.isKeyPressed(SDLK_d)){
             camera.MoveRight(0.010);
-            if(!isUpPressed){
+            if(SDL_GetTicks() - lastFootStep > limit){
                 PlaySound(chunkList[0]);
-            }else {
-            isUpPressed = false;
+                lastFootStep = SDL_GetTicks();
             }
+        }
+
+        if(windowManager.isKeyPressed(SDLK_RETURN)){
+            models = modelsFromFile(app + FilePath("files/assets/models/models2.txt"));
         }
         // if(windowManager.isKeyPressed(SDLK_SPACE))
         //     camera.MoveUp(0.010);
@@ -170,8 +177,10 @@ int main(int argc, char** argv){
         if(windowManager.isKeyPressed(SDLK_SPACE))
             camera.launchJump();
         if(windowManager.isKeyPressed(SDLK_LSHIFT)){
+            limit = 400;
             camera.isShiftPressed = true;
         } else {
+            limit = 600;
             camera.isShiftPressed = false;
         }
 
