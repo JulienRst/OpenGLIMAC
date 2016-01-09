@@ -7,6 +7,10 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <cstdlib>
+#include <set>
+#include <memory>
+#include <string>
 using namespace std;
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
@@ -17,12 +21,15 @@ using namespace std;
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <glimac/Sphere.hpp>
 #include <glimac/Image.hpp>
 #include <glimac/glm.hpp>
+#include <glimac/SDLWindowManager.hpp>
+
+#include <GL/glew.h>
 
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
-#include <memory>
 
 GLint TextureFromFile(const string path, string directory);
 
@@ -34,6 +41,7 @@ public:
     Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
+
     glm::mat4 getModelMatrix();
 
 private:
@@ -55,3 +63,7 @@ private:
     GLint TextureFromFile(const string path, string directory);
 
 };
+
+
+void drawModels(string filepath, Shader shader);
+map<int, unique_ptr<Model> > modelsFromFile(string const& filepath);
