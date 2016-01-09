@@ -3,17 +3,6 @@
 glm::mat4 Camera::GetViewMatrix(){
     return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
 }
-// void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime){
-// GLfloat velocity = this->MovementSpeed * deltaTime;
-// if (direction == FORWARD)
-// this->Position += this->Front * velocity;
-// if (direction == BACKWARD)
-// this->Position -= this->Front * velocity;
-// if (direction == LEFT)
-// this->Position -= this->Right * velocity;
-// if (direction == RIGHT)
-// this->Position += this->Right * velocity;
-// }
 
 void Camera::MoveFront(float t){
     float x=1;
@@ -76,24 +65,6 @@ void Camera::ProcessJump(){
         this->Position.y = - (jump * jump) + 4;
         this->jump += 0.01;
         if(jump >= 2){
-            this->Position.y = 0.0f;
-            isInJump = false;
-        }
-    }
-}
-
-void Camera::launchJump(){
-    if(!isInJump){
-        isInJump = true;
-        jump = -1.414f;
-    }
-}
-
-void Camera::ProcessJump(){
-    if(isInJump){
-        this->Position.y = - (jump * jump) + 2;
-        this->jump += 0.01;
-        if(jump >= 1.414f){
             this->Position.y = 0.0f;
             isInJump = false;
         }
