@@ -35,6 +35,7 @@ public:
     Model(std::string const& path, std::vector<float>& xyz);
     // Draws the model, and thus all its meshes
     void Draw(Shader const& shader);
+    glm::mat4 getModelMatrix(int numModelMat);
 
 private:
     /*  Model Data  */
@@ -60,5 +61,3 @@ GLint TextureFromFile(const std::string path, std::string directory);
 
 void drawModels(std::map<int, std::unique_ptr<Model> > const& models, Shader const& shader);
 std::map<int, std::unique_ptr<Model> > modelsFromFile(std::string const& filepath);
-
-glm::mat4 getModelMatrix(int numModelMat);

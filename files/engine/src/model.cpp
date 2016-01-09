@@ -8,7 +8,7 @@ using namespace glm;
 // Constructor, expects filepath and floats of matrices translate and scale
 Model::Model(std::string const& path, std::vector<float>& xyz){
     GLuint i;
-    for(i = 0; i < xyz.size()/6; ++i){
+    for(i = 0; i < xyz.size(); i+=6){
         glm::mat4 modelmat;
         modelmat = translate(modelmat, vec3(xyz[i], xyz[i+1], xyz[i+2]));
         modelmat = scale(modelmat, vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
@@ -21,12 +21,25 @@ Model::Model(std::string const& path, std::vector<float>& xyz){
 // Draws the model, and thus all its meshes
 void Model::Draw(Shader const& shader){
     for(unsigned int j = 0; j < m_modelmatVector.size() ; ++j) {
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(m_modelmatVector[j]));
-        
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE,glm::value_ptr(glm::mat4()));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(m_modelmatVector[j]));
         for(GLuint i = 0; i < this->meshes.size(); i++){
             this->meshes[i].Draw(shader);
         }
     }
+}
+
+glm::mat4 Model::getModelMatrix(int numModelMat){
+    return m_modelmatVector[numModelMat];
+}
+
+//Create the models with the path, translate and scale matrix
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader){
+        //Load a list of ModelMatrix from a text file
+        GLuint i;
+        for(i = 0; i < models.size(); i++){
+            models.at(i)->Draw(shader);
+        }
 }
 
 //Creates a map of models pointers from file
@@ -36,7 +49,6 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
     std::map<int, std::unique_ptr<Model> > models;
         string path, line; //path est une variable temporaire
         string stx, sty, stz, ssx, ssy, ssz;
-        std::vector<float> xyz;
 
          if (!myFile.is_open()){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
@@ -45,9 +57,11 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
             lineStream >> path ;
+            std::vector<float> xyz;
 
             while(lineStream >> stx >> sty >> stz >> ssx >> ssy >> ssz){
             //on rentre les données de la ligne dans les différentes variables temporaires
+                std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
                 xyz.push_back(stof(stx));
                 xyz.push_back(stof(sty));
                 xyz.push_back(stof(stz));
@@ -55,21 +69,14 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
                 xyz.push_back(stof(ssy));
                 xyz.push_back(stof(ssz));
             }
+            std::cout << i << xyz[0] << xyz[1] << std::endl;
             models[i].reset(new Model(path, xyz));
+            //std::cout << i << models[i]->getModelMatrix(0) << std::endl << models[i]->getModelMatrix(1) << std::endl;
+
             ++i;
         }
     myFile.close();
     return models;
-}
-
-//Create the models with the path, translate and scale matrix
-void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader){
-        //Load a list of ModelMatrix from a text file
-        GLuint i;
-        for(i = 0; i < models.size(); i++){
-            glm::mat4 model;
-            models.at(i)->Draw(shader);
-        }
 }
 
 /*  Functions   */
