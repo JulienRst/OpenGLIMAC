@@ -57,7 +57,6 @@ int main(int argc, char** argv){
 
     FilePath app = FilePath(argv[0]).dirPath();
     // -------- GLOBAL VARIABLE -------------- //
-    FilePath app = FilePath(argv[0]).dirPath();
 
     GLuint screenWidth = 1920;
     GLuint screenHeight = 1080;
@@ -101,9 +100,9 @@ int main(int argc, char** argv){
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    // Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
+    Model& city = *models["./../../../files/assets/models/city/west/model.dae"];  
     Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
-    //Model& stormtrooper = *models["./../../../files/assets/models/stormtrooper/Stormtrooper.obj"];
+    Model& stormtrooper = *models["./../../../files/assets/models/stormtrooper/Stormtrooper.obj"];
 
 
     int loop = true;
@@ -170,13 +169,20 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
+
+        model = city.getModelMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        city.Draw(shader);
+
         model = nanosuit.getModelMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
-        // model = stormtrooper.getModelMatrix();
-        // glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        // stormtrooper.Draw(shader);
-        // Update the display
+
+        model = stormtrooper.getModelMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        stormtrooper.Draw(shader);
+
+        //Update the display
         windowManager.swapBuffers();
     }
 
