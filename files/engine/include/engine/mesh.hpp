@@ -5,13 +5,13 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-using namespace std;
+
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glimac/glm.hpp>
 #include <assimp/types.h>
-#include "engine/shader.hpp"
+
+class Shader;
 
 
 struct Vertex {
@@ -25,7 +25,7 @@ struct Vertex {
 
 struct Texture {
     GLuint id;
-    string type;
+    std::string type;
     aiString path;
 };
 
@@ -33,16 +33,16 @@ class Mesh {
 
 public:
     /*  Mesh Data  */
-    vector<Vertex> vertices;
-    vector<GLuint> indices;
-    vector<Texture> textures;
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+    std::vector<Texture> textures;
 
     /*  Functions  */
     // Constructor
-    Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures);
+    Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
 
     // Render the mesh
-    void Draw(Shader shader) ;
+    void Draw(Shader const& shader) ;
 
 private:
     /*  Render data  */

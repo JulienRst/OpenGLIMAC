@@ -1,4 +1,7 @@
 #include "engine/mesh.hpp"
+#include "engine/shader.hpp"
+
+using namespace std;
 
     /*  Functions  */
     // Constructor
@@ -13,7 +16,7 @@
     }
 
     // Render the mesh
-    void Mesh::Draw(Shader shader)
+    void Mesh::Draw(Shader const& shader)
     {
         // Bind appropriate textures
         GLuint diffuseNr = 1;

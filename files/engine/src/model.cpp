@@ -1,36 +1,42 @@
 #include "engine/model.hpp"
+#include "engine/shader.hpp"
 
 using namespace std;
 using namespace glm;
 
 /*  Functions   */
 // Constructor, expects filepath and floats of matrices translate and scale
-Model::Model(string const& path, vector< unique_ptr<float> > xyz){
-    int i;
-    for(i = 0; i < xyz.size()/6: ++i){
-        unique_ptr<mat4> modelmat.reset(new mat4());
-        *modelmat = translate(m_modelmat, vec3(xyz[i], xyz[i+1], xyz[i+2]));
-        *modelmat = scale(m_modelmat, vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
+Model::Model(std::string const& path, std::vector<float>& xyz){
+    GLuint i;
+    for(i = 0; i < xyz.size()/6; ++i){
+        glm::mat4 modelmat;
+        modelmat = translate(modelmat, vec3(xyz[i], xyz[i+1], xyz[i+2]));
+        modelmat = scale(modelmat, vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
         m_modelmatVector.push_back(modelmat);
     }
     this->loadModel(path);
 }
 
+
 // Draws the model, and thus all its meshes
-void Model::Draw(Shader shader)
-{
-    for(GLuint i = 0; i < this->meshes.size(); i++){
-        this->meshes[i].Draw(shader);
+void Model::Draw(Shader const& shader){
+    for(unsigned int j = 0; j < m_modelmatVector.size() ; ++j) {
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(m_modelmatVector[j]));
+        
+        for(GLuint i = 0; i < this->meshes.size(); i++){
+            this->meshes[i].Draw(shader);
+        }
     }
 }
+
 //Creates a map of models pointers from file
 map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
     ifstream myFile; //creation du ifstream qui contiendra les données du fichier
     myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
-    map<int, unique_ptr<Model> > models;
+    std::map<int, std::unique_ptr<Model> > models;
         string path, line; //path est une variable temporaire
         string stx, sty, stz, ssx, ssy, ssz;
-        vector<unique_ptr<float>> xyz;
+        std::vector<float> xyz;
 
          if (!myFile.is_open()){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
@@ -42,12 +48,12 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
 
             while(lineStream >> stx >> sty >> stz >> ssx >> ssy >> ssz){
             //on rentre les données de la ligne dans les différentes variables temporaires
-                xyz.push_back( new unique_ptr<float>.reset(stof(stx)) );
-                xyz.push_back( new unique_ptr<float>.reset(stof(sty)) );
-                xyz.push_back( new unique_ptr<float>.reset(stof(stz)) );
-                xyz.push_back( new unique_ptr<float>.reset(stof(ssx)) );
-                xyz.push_back( new unique_ptr<float>.reset(stof(ssy)) );
-                xyz.push_back( new unique_ptr<float>.reset(stof(ssz)) );
+                xyz.push_back(stof(stx));
+                xyz.push_back(stof(sty));
+                xyz.push_back(stof(stz));
+                xyz.push_back(stof(ssx));
+                xyz.push_back(stof(ssy));
+                xyz.push_back(stof(ssz));
             }
             models[i].reset(new Model(path, xyz));
             ++i;
@@ -57,22 +63,16 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
 }
 
 //Create the models with the path, translate and scale matrix
-void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader){
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader){
         //Load a list of ModelMatrix from a text file
         GLuint i;
         for(i = 0; i < models.size(); i++){
             glm::mat4 model;
-            model = models.at(i)->getModelMatrix();
-            glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
             models.at(i)->Draw(shader);
         }
 }
 
 /*  Functions   */
-
-glm::mat4 Model::getModelMatrix(){
-    return m_modelmat;
-}
 
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)
@@ -81,6 +81,13 @@ void Model::loadModel(string path)
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
     // Check for errors
+    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
+    myFile.open(path);
+    if(!myFile.is_open()){
+        std::cerr << "Erreur: Fichier modèle non trouvé" << std::endl;
+    }
+    std::cout << "Ouverture réussie pour " << path << std::endl;
+
     if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
         cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
