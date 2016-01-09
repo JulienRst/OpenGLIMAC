@@ -7,6 +7,7 @@
 #include <set>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include <glimac/glm.hpp>
 #include <glimac/SDLWindowManager.hpp>
@@ -19,6 +20,11 @@
 #include "engine/shader.hpp"
 #include "engine/freefly.hpp"
 #include "engine/mouse.hpp"
+// #include "engine/music.hpp"
+#include "engine/music.hpp" //Normalement c'est lui qui accède correctement au fichier
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
 
 // -------- NAMESPACE -------------- //
 
@@ -78,14 +84,84 @@ int main(int argc, char** argv){
     int loop = true;
     float xOffset, yOffset;
 
+
+    // *************************************
+    // SOUNDS
+    // *************************************
+
+    SDL_Init(SDL_INIT_AUDIO);
+    InitAudio();
+
+    //Vector how put sounds (music and chunk)
+    vector<Mix_Music*> musicList;
+    vector<Mix_Chunk*> chunkList;
+
+
+
+    // ------------------- MENU ----------------------
+
+    //Music Menu
+    musicList.push_back(LoadMusic("../../assets/sounds/bruit_menu.mp3"));
+    PlayMusic(musicList[0], -1); // -1 pour infini
+    //Sound Menu
+    chunkList.push_back(LoadSound("../../assets/sounds/footstep_1pas.ogg"));
+    //Dicrease the music volume with '/10'
+    AdjustChannelVolume(-1, MIX_MAX_VOLUME/10);
+
+    // print the average volume
+    //printf("Average volume is %d\n",Mix_Volume(-1,-1));
+    //bool isUpPressed = false;
     while(loop){
         // Event loop:
         SDL_Event e;
+
         while(windowManager.pollEvent(e)) {
             if(e.type == SDL_QUIT) {
                 loop = false; // Leave the loop after this iteration
             }
         }
+
+
+        // -------------------- EVENT KEYBOARD SOUNDS ---------------------
+
+        
+
+        if(windowManager.isKeyPressed(SDLK_p)){
+            StopMusic();
+        }
+        if(windowManager.isKeyPressed(SDLK_o)){
+            ResumeMusic();
+        }
+        if(windowManager.isKeyPressed(SDLK_BACKSPACE)){
+            Mix_RewindMusic(); //Revient au début de la musique
+        }
+        if(windowManager.isKeyPressed(SDLK_ESCAPE)){
+            Mix_HaltMusic(); //Arrête la musique
+        }
+
+        if(windowManager.isKeyPressed(SDLK_UP)){
+            //if(!isUpPressed){
+                PlaySound(chunkList[0]);
+                //isUpPressed = true;
+            //}
+            //PlaySound(-1,chunkList[0],0);
+        } //else {
+            //isUpPressed = false;
+        //}
+        if(windowManager.isKeyPressed(SDLK_DOWN)){
+            PlaySound(chunkList[0]);
+        }
+        
+        if(windowManager.isKeyPressed(SDLK_LEFT)){
+            PlaySound(chunkList[0]);
+        }
+        
+        if(windowManager.isKeyPressed(SDLK_RIGHT)){
+            PlaySound(chunkList[0]);
+        }
+        
+
+
         //glClear
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -144,6 +220,9 @@ int main(int argc, char** argv){
         //Update the display
         windowManager.swapBuffers();
     }
-
+    FreeSound(chunkList[0]);
+    FreeMusic(musicList[0]);
+    QuitAudio();
+    SDL_Quit();
     return EXIT_SUCCESS;
 }

@@ -8,8 +8,7 @@
 using namespace std;
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+#include <glimac/glm.hpp>
 #include <assimp/types.h>
 #include "engine/shader.hpp"
 
