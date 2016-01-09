@@ -65,5 +65,5 @@ private:
 };
 
 
-void drawModels(string filepath, Shader shader);
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader);
 map<int, unique_ptr<Model> > modelsFromFile(string const& filepath);
