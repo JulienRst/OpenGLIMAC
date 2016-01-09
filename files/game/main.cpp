@@ -28,26 +28,27 @@ using namespace glimac;
 
 // TODO Ajouter ici l'initialisation de la caméra de Chamse
 
-map<string, unique_ptr<Model> > modelsFromFile(string filepath){
+map<string, unique_ptr<Model> > modelsFromFile(string const& filepath){
     ifstream myFile; //creation du ifstream qui contiendra les données du fichier
     myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
     map<string, unique_ptr<Model> > models;
-    if (myFile.is_open()) {
         string path, line; //path est une variable temporaire
         float tx, ty, tz, sx, sy, sz;
+         if (!myFile.is_open()){
+             std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
+         }
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
             lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
-            std::cout << "path = " << path << std::endl;
             models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
         }
-    }
     myFile.close();
     return models;
 }
 
 int main(int argc, char** argv){
 
+    FilePath app = FilePath(argv[0]).dirPath();
     // -------- GLOBAL VARIABLE -------------- //
 
     GLuint screenWidth = 1920;
@@ -67,8 +68,6 @@ int main(int argc, char** argv){
     //Affichage des versions Software
     std::cout << "OpenGL Version : " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEW Version : " << glewGetString(GLEW_VERSION) << std::endl;
-
-
 
     // Initialisation de GLEW
     glewExperimental = GL_TRUE;
@@ -90,17 +89,12 @@ int main(int argc, char** argv){
 
     //Load a list of ModelMatrix from a text file
     ///////////////
-    std::cout << "avant models" << std::endl;
-   map<string, unique_ptr<Model> > models = modelsFromFile("files/assets/models/models.txt");
-   std::cout << "Models from file" << std::endl;
+    map<string, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../../files/assets/models/models.txt"));
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
-    std::cout << "creation nanosuit ?" << std::endl;
-    // auto nanosuit = models["nanosuit.obj"];
-    // std::cout << "nanosuit created" << std::endl;
-    // Model& stormtrooper = *models["stormtrooper.obj"];
-    // std::cout << "stormtrooper created" << std::endl;
+    Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
+    Model& stormtrooper = *models["./../../../files/assets/models/stormtrooper/Stormtrooper.obj"];
 
 
     int loop = true;
@@ -151,8 +145,8 @@ int main(int argc, char** argv){
 
         //Récupération de la viewMatrix de la Caméra
 
-        viewMatrix = camera.GetViewMatrix();
-
+        //viewMatrix = camera.GetViewMatrix();
+        viewMatrix = mat4();
         // Transformation matrices
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
@@ -161,15 +155,12 @@ int main(int argc, char** argv){
         // Draw the loaded model
         glm::mat4 model;
 
-        cout << "Before nanosuit" << endl;
-        model = (*models["nanosuit.obj"]).getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        model = nanosuit.getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        (*models["nanosuit.obj"]).Draw(shader);
-        cout << "After nanosuit" << endl;
-        model = (*models["stormtrooper.obj"]).getModelMatrix();
+        nanosuit.Draw(shader);
+        model = stormtrooper.getModelMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        (*models["stormtrooper.obj"]).Draw(shader);
-
+        stormtrooper.Draw(shader);
         // Update the display
         windowManager.swapBuffers();
     }
