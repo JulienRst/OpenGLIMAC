@@ -33,13 +33,20 @@ map<string, unique_ptr<Model> > modelsFromFile(string const& filepath){
     myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
     map<string, unique_ptr<Model> > models;
         string path, line; //path est une variable temporaire
+        string stx, sty, stz, ssx, ssy, ssz;
         float tx, ty, tz, sx, sy, sz;
          if (!myFile.is_open()){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
          }
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz; //on rentre les données de la ligne dans les différentes variables temporaires
+            lineStream >> path >> stx >> sty >> stz >> ssx >> ssy >> ssz; //on rentre les données de la ligne dans les différentes variables temporaires
+            tx = stof(stx);
+            ty = stof(sty);
+            tz = stof(stz);
+            sx = stof(ssx);
+            sy = stof(ssy);
+            sz = stof(ssz);
             models[path].reset(new Model(path, tx, ty, tz, sx, sy, sz));
         }
     myFile.close();
@@ -93,8 +100,9 @@ int main(int argc, char** argv){
     //////////////                                                                                       //Fermeture du fichier
 
     //Create the models with the path, translate and scale matrix
+    // Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
     Model& nanosuit = *models["./../../../files/assets/models/nanosuit/nanosuit.obj"];
-    Model& stormtrooper = *models["./../../../files/assets/models/stormtrooper/Stormtrooper.obj"];
+    //Model& stormtrooper = *models["./../../../files/assets/models/stormtrooper/Stormtrooper.obj"];
 
 
     int loop = true;
@@ -114,11 +122,11 @@ int main(int argc, char** argv){
         //Lancement des shaders
         shader.Use();
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
-        xOffset = windowManager.getMousePosition().x - mouse.lastX - 960;
-        yOffset = windowManager.getMousePosition().y - mouse.lastY - 540;
+        xOffset = windowManager.getMousePosition().x - mouse.lastX;
+        yOffset = windowManager.getMousePosition().y - mouse.lastY;
 
-        mouse.lastX = windowManager.getMousePosition().x - 960;
-        mouse.lastY = windowManager.getMousePosition().y - 540;
+        mouse.lastX = windowManager.getMousePosition().x;
+        mouse.lastY = windowManager.getMousePosition().y;
 
         camera.ProcessMouseMovement(xOffset,yOffset);
         camera.ProcessJump();
@@ -161,13 +169,12 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
-
-        model = nanosuit.getModelMatrix(); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        model = nanosuit.getModelMatrix();
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         nanosuit.Draw(shader);
-        model = stormtrooper.getModelMatrix();
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        stormtrooper.Draw(shader);
+        // model = stormtrooper.getModelMatrix();
+        // glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        // stormtrooper.Draw(shader);
         // Update the display
         windowManager.swapBuffers();
     }
