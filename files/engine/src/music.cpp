@@ -19,6 +19,8 @@
 
 // ***1***
 #include "engine/music.hpp"
+#include "SDL.h"
+#include "SDL_mixer.h"
 //#include "glimac/include/glimac/SDLWindowManager.hpp"
 
 
@@ -45,14 +47,14 @@ void FreeMusic(Mix_Music* music){
 	Mix_FreeMusic(music);
 }
 
-//Joue de la musique 
+//Joue de la musique
 void PlayMusic(Mix_Music* music, int loops){
 	Mix_PlayMusic(music, loops);
 }
 
 //Stop la musique
 void StopMusic(){
-	Mix_PauseMusic();	
+	Mix_PauseMusic();
 
 	Mix_RewindMusic();
 }
@@ -97,7 +99,7 @@ void AdjustChannelVolume(int channel, int volume){
 // 	SDL_Event event;
 // 	SDL_WM_SetCaption("SDL_Mixer", NULL);
 // 	SDL_Flip(ecran);
- 	
+
 //  	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1){ //Initialisation de l'API Mixer
 //       printf("%s", Mix_GetError());
 //   	}
@@ -116,7 +118,7 @@ void AdjustChannelVolume(int channel, int volume){
 
 // 		// case SDL_KEYDOWN:
 //   //           switch (event.key.keysym.sym){
-//   //               case SDLK_p: 
+//   //               case SDLK_p:
 //   //                   if(Mix_PausedMusic() == 1){//Si la musique est en pause
 //   //                 		Mix_ResumeMusic(); //Reprendre la musique
 //   //                   }
@@ -176,7 +178,7 @@ void AdjustChannelVolume(int channel, int volume){
 // 		start = SDL_GetTicks();
 // 		SDL_Event event;
 // 		while(SDL_PollEvent($event)){
-			
+
 // 		}
 // 	}
 //     // On initialise la SDL
