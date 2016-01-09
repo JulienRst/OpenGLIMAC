@@ -115,7 +115,9 @@ int main(int argc, char** argv){
     Mouse mouse;
 
     //Load & Compile Shader
-    Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");                                                              
+
+    Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
+
 
     int loop = true;
     float xOffset, yOffset;

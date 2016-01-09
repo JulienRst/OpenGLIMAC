@@ -60,18 +60,18 @@ this->Right = glm::normalize(glm::cross(this->Front, this->WorldUp)); // Normali
 this->Up = glm::normalize(glm::cross(this->Right, this->Front));
 }
 void Camera::launchJump(){
-if(!isInJump){
-isInJump = true;
-jump = -1.414f;
-}
+    if(!isInJump){
+        isInJump = true;
+        jump = -2;
+    }
 }
 void Camera::ProcessJump(){
-if(isInJump){
-this->Position.y = - (jump * jump) + 2;
-this->jump += 0.01;
-if(jump >= 1.414f){
-this->Position.y = 0.0f;
-isInJump = false;
-}
-}
+    if(isInJump){
+        this->Position.y = - (jump * jump) + 4;
+        this->jump += 0.01;
+        if(jump >= 2){
+            this->Position.y = 0.0f;
+            isInJump = false;
+        }
+    }
 }
