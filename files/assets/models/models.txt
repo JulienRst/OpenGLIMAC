@@ -1,2 +1,2 @@
-./../../../files/assets/models/stormtrooper/Stormtrooper.obj 10.0f 0.0f 0.0f 4.0f 4.0f 4.0f
 ./../../../files/assets/models/nanosuit/nanosuit.obj 0.0f -7.0f -20.0f 0.5f 0.5f 0.5f
+./../../../files/assets/models/stormtrooper/Stormtrooper.obj 10.0f 0.0f 0.0f 4.0f 4.0f 4.0f

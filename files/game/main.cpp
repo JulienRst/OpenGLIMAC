@@ -121,20 +121,27 @@ int main(int argc, char** argv){
         mouse.lastY = windowManager.getMousePosition().y - 540;
 
         camera.ProcessMouseMovement(xOffset,yOffset);
-
+        camera.ProcessJump();
 
         if(windowManager.isKeyPressed(SDLK_z))
-            camera.MoveFront(0.010);
+        camera.MoveFront(0.010);
         if(windowManager.isKeyPressed(SDLK_q))
-            camera.MoveRight(-0.010);
+        camera.MoveRight(-0.010);
         if(windowManager.isKeyPressed(SDLK_s))
-            camera.MoveFront(-0.010);
+        camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
-            camera.MoveRight(0.010);
+        camera.MoveRight(0.010);
+        // if(windowManager.isKeyPressed(SDLK_SPACE))
+        // camera.MoveUp(0.010);
+        // if(windowManager.isKeyPressed(SDLK_LSHIFT))
+        // camera.MoveUp(-0.010);
         if(windowManager.isKeyPressed(SDLK_SPACE))
-            camera.MoveUp(0.010);
-        if(windowManager.isKeyPressed(SDLK_LSHIFT))
-            camera.MoveUp(-0.010);
+        camera.launchJump();
+        if(windowManager.isKeyPressed(SDLK_LSHIFT)){
+        camera.isShiftPressed = true;
+        } else {
+        camera.isShiftPressed = false;
+        }
 
         // RECUPERATION DE LA SOURIS / UPDATE CAMERA
 
@@ -145,8 +152,8 @@ int main(int argc, char** argv){
 
         //Récupération de la viewMatrix de la Caméra
 
-        //viewMatrix = camera.GetViewMatrix();
-        viewMatrix = mat4();
+        viewMatrix = camera.GetViewMatrix();
+
         // Transformation matrices
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
