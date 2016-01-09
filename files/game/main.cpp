@@ -49,6 +49,7 @@ map<string, unique_ptr<Model> > modelsFromFile(string filepath){
 int main(int argc, char** argv){
 
     // -------- GLOBAL VARIABLE -------------- //
+    FilePath app = FilePath(argv[0]).dirPath();
 
     GLuint screenWidth = 1920;
     GLuint screenHeight = 1080;
@@ -91,7 +92,7 @@ int main(int argc, char** argv){
     //Load a list of ModelMatrix from a text file
     ///////////////
     std::cout << "avant models" << std::endl;
-   map<string, unique_ptr<Model> > models = modelsFromFile("files/assets/models/models.txt");
+   map<string, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../files/assets/models/models.txt"));
    std::cout << "Models from file" << std::endl;
     //////////////                                                                                       //Fermeture du fichier
 
