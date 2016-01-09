@@ -79,7 +79,7 @@ int main(int argc, char** argv){
     float xOffset, yOffset;
 
 
-    // **** SOUND **** 
+    // **** SOUND ****
     SDL_Init(SDL_INIT_AUDIO);
     InitAudio();
    // SDL_Surface *ecran = NULL;
@@ -90,7 +90,7 @@ int main(int argc, char** argv){
     //Sons de base
     vector<Mix_Music*> musicList;
     //Musique du menu !!
-    musicList.push_back(LoadMusic("../../assets/sounds/batman_saut.wav"));
+    musicList.push_back(LoadMusic("../../assets/sounds/bruit_menu.mp3"));
     PlayMusic(musicList[0], -1); // -1 pour infini
 
 
@@ -214,7 +214,7 @@ int main(int argc, char** argv){
 // static const Uint32 FRAMERATE_MILLISECONDS = 3600 / 60;
 
 // int main(int argc, char** argv) {
-  
+
 //      // Création fenetre
 //  Fenetre* f = creerFenetre(800,600);
 //  initialisationSDL();
@@ -222,9 +222,9 @@ int main(int argc, char** argv){
 //  SDL_WM_SetCaption("LOST TOWN", NULL);
 //  pointSize(6);
 
-//  //Chargement du jeu 
+//  //Chargement du jeu
 //  Jeu monJeu = initialiserJeu();
-    
+
 // // ****************************** SOUNDS LOADING ****************************** //
 
 //  int k;  ------POUR SOUDS LOADING------
@@ -264,7 +264,7 @@ int main(int argc, char** argv){
 //     while(monJeu.loop) {
 //      /* temps au début de la boucle */
 //      Uint32 startTime = SDL_GetTicks();
-        
+
 //      /* dessin */
 //      glClear(GL_COLOR_BUFFER_BIT);
 
@@ -282,10 +282,10 @@ int main(int argc, char** argv){
 //          SDL_Delay(FRAMERATE_MILLISECONDS - elapsedTime);
 //      }
 //  }
-      
-//  freeJeu(&(monJeu));     
+
+//  freeJeu(&(monJeu));
 //     SDL_Quit();
-    
+
 //     return EXIT_SUCCESS;
 
 
@@ -307,7 +307,7 @@ int main(int argc, char** argv){
 //     SDL_Event event;
 //     SDL_WM_SetCaption("SDL_Mixer", NULL);
 //     SDL_Flip(ecran);
-    
+
 
 //     //ON COMMENTE CETTE PARTIE DU CODE ...
 //         // if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1){ //Initialisation de l'API Mixer
@@ -338,7 +338,7 @@ int main(int argc, char** argv){
 
 //         // case SDL_KEYDOWN:
 //   //           switch (event.key.keysym.sym){
-//   //               case SDLK_p: 
+//   //               case SDLK_p:
 //   //                   if(Mix_PausedMusic() == 1){//Si la musique est en pause
 //   //                        Mix_ResumeMusic(); //Reprendre la musique
 //   //                   }
@@ -414,7 +414,7 @@ int main(int argc, char** argv){
 // }
 
 // // Load a normal picture into a surface
-// inline SDL_Surface *ImgLoader(char *file)       
+// inline SDL_Surface *ImgLoader(char *file)
 //                 { return ImgLoader(file,1,0,0,0,0) ; }
 // // Load a pic & set the transparent color to (255,255,255) , no alpha
 // inline SDL_Surface *ImgLoader(char *file,bool bCKey)

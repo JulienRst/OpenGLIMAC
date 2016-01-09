@@ -4,15 +4,18 @@ project(OpenGLIMAC)
 
 add_definitions(-std=c++11)
 add_definitions(-Wall)
+add_definitions(-O)
 add_definitions(-O2)
 add_definitions(-lassimp)
 add_definitions(-lSDL)
 add_definitions(-lSDL_mixer)
+add_definitions(-g)
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third-party/CMake)
 
 find_package(SDL REQUIRED)
+find_package(SDL_mixer REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
@@ -23,7 +26,6 @@ find_package(GLEW REQUIRED)
 include_directories(third-party/assimp/include)
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "")
 add_subdirectory(third-party/assimp)
-
 
 include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} engine/include glimac/include third-party/include)
 
