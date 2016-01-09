@@ -80,6 +80,4 @@ class Camera {
     private:
         // Calculates the front vector from the Camera's (updated) Eular Angles
         void updateCameraVectors();
-
-        >>>>>>> dev
 };

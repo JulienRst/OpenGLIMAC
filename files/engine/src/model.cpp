@@ -5,11 +5,14 @@ using namespace glm;
 
 /*  Functions   */
 // Constructor, expects filepath and floats of matrices translate and scale
-Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz){
-    m_modelmat = mat4();
-    m_modelmat = translate(m_modelmat, vec3(tx, ty, tz));
-    m_modelmat = scale(m_modelmat, vec3(sx, sy, sz));
-
+Model::Model(string const& path, vector< unique_ptr<float> > xyz){
+    int i;
+    for(i = 0; i < xyz.size()/6: ++i){
+        unique_ptr<mat4> modelmat.reset(new mat4());
+        *modelmat = translate(m_modelmat, vec3(xyz[i], xyz[i+1], xyz[i+2]));
+        *modelmat = scale(m_modelmat, vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
+        m_modelmatVector.push_back(modelmat);
+    }
     this->loadModel(path);
 }
 
@@ -27,21 +30,26 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
     map<int, unique_ptr<Model> > models;
         string path, line; //path est une variable temporaire
         string stx, sty, stz, ssx, ssy, ssz;
-        float tx, ty, tz, sx, sy, sz;
+        vector<unique_ptr<float>> xyz;
+
          if (!myFile.is_open()){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
          }
          int i = 0;
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path >> stx >> sty >> stz >> ssx >> ssy >> ssz; //on rentre les données de la ligne dans les différentes variables temporaires
-            tx = stof(stx);
-            ty = stof(sty);
-            tz = stof(stz);
-            sx = stof(ssx);
-            sy = stof(ssy);
-            sz = stof(ssz);
-            models[i].reset(new Model(path, tx, ty, tz, sx, sy, sz));
+            lineStream >> path ;
+
+            while(lineStream >> stx >> sty >> stz >> ssx >> ssy >> ssz){
+            //on rentre les données de la ligne dans les différentes variables temporaires
+                xyz.push_back( new unique_ptr<float>.reset(stof(stx)) );
+                xyz.push_back( new unique_ptr<float>.reset(stof(sty)) );
+                xyz.push_back( new unique_ptr<float>.reset(stof(stz)) );
+                xyz.push_back( new unique_ptr<float>.reset(stof(ssx)) );
+                xyz.push_back( new unique_ptr<float>.reset(stof(ssy)) );
+                xyz.push_back( new unique_ptr<float>.reset(stof(ssz)) );
+            }
+            models[i].reset(new Model(path, xyz));
             ++i;
         }
     myFile.close();

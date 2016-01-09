@@ -38,7 +38,7 @@ class Model
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz);
+    Model(string const& path, vector<unique_ptr<float>> xyz);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
 
@@ -48,7 +48,7 @@ private:
     /*  Model Data  */
     vector<Mesh> meshes;
     string directory;
-    glm::mat4 m_modelmat;
+    vector< unique_ptr<glm::mat4> > m_modelmatVector;
     vector<Texture> textures_loaded;    // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 
     /*  Functions   */
