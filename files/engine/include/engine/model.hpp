@@ -1,11 +1,16 @@
+#define GLM_FORCE_RADIANS
 #pragma once
 // Std. Includes
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <map>
 #include <vector>
+#include <map>
+#include <cstdlib>
+#include <set>
+#include <memory>
+#include <string>
 using namespace std;
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
@@ -16,7 +21,12 @@ using namespace std;
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <glimac/Sphere.hpp>
 #include <glimac/Image.hpp>
+#include <glimac/glm.hpp>
+#include <glimac/SDLWindowManager.hpp>
+
+#include <GL/glew.h>
 
 #include "engine/mesh.hpp"
 #include "engine/shader.hpp"
@@ -28,14 +38,17 @@ class Model
 public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
-    Model(string path);
+    Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz);
     // Draws the model, and thus all its meshes
     void Draw(Shader shader);
+
+    glm::mat4 getModelMatrix();
 
 private:
     /*  Model Data  */
     vector<Mesh> meshes;
     string directory;
+    glm::mat4 m_modelmat;
     vector<Texture> textures_loaded;    // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
 
     /*  Functions   */
@@ -50,3 +63,7 @@ private:
     GLint TextureFromFile(const string path, string directory);
 
 };
+
+
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader);
+map<int, unique_ptr<Model> > modelsFromFile(string const& filepath);

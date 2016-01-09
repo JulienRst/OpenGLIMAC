@@ -1,6 +1,11 @@
 #include <cstdlib>
 #include <iostream>
-
+#include <fstream>
+#include <cstdlib>
+#include <vector>
+#include <map>
+#include <set>
+#include <memory>
 #include <string>
 
 #include <glimac/glm.hpp>
@@ -25,6 +30,7 @@ using namespace glimac;
 
 int main(int argc, char** argv){
 
+    FilePath app = FilePath(argv[0]).dirPath();
     // -------- GLOBAL VARIABLE -------------- //
 
     GLuint screenWidth = 1920;
@@ -45,13 +51,15 @@ int main(int argc, char** argv){
     std::cout << "OpenGL Version : " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEW Version : " << glewGetString(GLEW_VERSION) << std::endl;
 
-
-
     // Initialisation de GLEW
     glewExperimental = GL_TRUE;
     glewInit();
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
+
+    // Initialisation des models
+
+    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../../files/assets/models/models.txt"));
 
     // Initialisation de la Caméra freefly
 
@@ -63,11 +71,9 @@ int main(int argc, char** argv){
     Mouse mouse;
 
     //Load & Compile Shader
+
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
 
-    //Load Modele
-    Model nanosuit("../../assets/models/nanosuit/nanosuit.obj");
-    Model stormtrooper("../../assets/models/stormtrooper/Stormtrooper.obj");
 
     int loop = true;
     float xOffset, yOffset;
@@ -86,23 +92,26 @@ int main(int argc, char** argv){
         //Lancement des shaders
         shader.Use();
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
-        xOffset = windowManager.getMousePosition().x - mouse.lastX;// - 960;
-        yOffset = windowManager.getMousePosition().y - mouse.lastY;// - 540;
 
-        mouse.lastX = windowManager.getMousePosition().x;// - 960;
-        mouse.lastY = windowManager.getMousePosition().y;// - 540;
+        xOffset = windowManager.getMousePosition().x - mouse.lastX;
+        yOffset = windowManager.getMousePosition().y - mouse.lastY;
+
+        mouse.lastX = windowManager.getMousePosition().x;
+        mouse.lastY = windowManager.getMousePosition().y;
+
 
         camera.ProcessMouseMovement(xOffset,yOffset);
         camera.ProcessJump();
 
         if(windowManager.isKeyPressed(SDLK_z))
-            camera.MoveFront(0.010);
+        camera.MoveFront(0.010);
         if(windowManager.isKeyPressed(SDLK_q))
-            camera.MoveRight(-0.010);
+        camera.MoveRight(-0.010);
         if(windowManager.isKeyPressed(SDLK_s))
-            camera.MoveFront(-0.010);
+        camera.MoveFront(-0.010);
         if(windowManager.isKeyPressed(SDLK_d))
-            camera.MoveRight(0.010);
+
+        camera.MoveRight(0.010);
         // if(windowManager.isKeyPressed(SDLK_SPACE))
         //     camera.MoveUp(0.010);
         // if(windowManager.isKeyPressed(SDLK_LSHIFT))
@@ -130,22 +139,9 @@ int main(int argc, char** argv){
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        drawModels(models, shader);
 
-        // Draw the loaded model
-        glm::mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -7.0f, -20.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f)); // It's a bit too big for our scene, so scale it down
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        nanosuit.Draw(shader);
-        model = glm::mat4();
-        model = glm::translate(model, glm::vec3(10.0f,-7.0f,-20.0f));
-        model = glm::scale(model,glm::vec3(2.0f,2.0f,2.0f));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        stormtrooper.Draw(shader);
-
-
-
-        // Update the display
+        //Update the display
         windowManager.swapBuffers();
     }
 
