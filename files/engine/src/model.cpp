@@ -49,15 +49,14 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
 }
 
 //Create the models with the path, translate and scale matrix
-void drawModels(string filepath, Shader shader){
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader){
         //Load a list of ModelMatrix from a text file
-        map<int, unique_ptr<Model> > models = modelsFromFile(filepath);
         GLuint i;
         for(i = 0; i < models.size(); i++){
             glm::mat4 model;
-            model = (*models[i]).getModelMatrix();
+            model = models.at(i)->getModelMatrix();
             glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-            (*models[i]).Draw(shader);
+            models.at(i)->Draw(shader);
         }
 }
 

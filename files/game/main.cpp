@@ -28,54 +28,6 @@ using namespace glimac;
 
 // TODO Ajouter ici l'initialisation de la caméra de Chamse
 
-// //////////////////
-// //////////////////
-// //FONCTIONS A METTRE AILLEURS
-// //////////////////
-// //Creates a map of models pointers from file
-// map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
-//     ifstream myFile; //creation du ifstream qui contiendra les données du fichier
-//     myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
-//     map<int, unique_ptr<Model> > models;
-//         string path, line; //path est une variable temporaire
-//         string stx, sty, stz, ssx, ssy, ssz;
-//         float tx, ty, tz, sx, sy, sz;
-//          if (!myFile.is_open()){
-//              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
-//          }
-//          int i = 0;
-//         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
-//             istringstream lineStream(line); //on prend les données de la ligne suivante
-//             lineStream >> path >> stx >> sty >> stz >> ssx >> ssy >> ssz; //on rentre les données de la ligne dans les différentes variables temporaires
-//             tx = stof(stx);
-//             ty = stof(sty);
-//             tz = stof(stz);
-//             sx = stof(ssx);
-//             sy = stof(ssy);
-//             sz = stof(ssz);
-//             models[i].reset(new Model(path, tx, ty, tz, sx, sy, sz));
-//             ++i;
-//         }
-//     myFile.close();
-//     return models;
-// }
-
-// //Create the models with the path, translate and scale matrix
-// void drawModels(string filepath, Shader shader){
-//         //Load a list of ModelMatrix from a text file
-//         map<int, unique_ptr<Model> > models = modelsFromFile(filepath);
-//         int i;
-//         for(i = 0; i < models.size(); i++){
-//             glm::mat4 model;
-//             model = (*models[i]).getModelMatrix();
-//             glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-//             (*models[i]).Draw(shader);
-//         }
-// }
-// ///////////////////
-// //////END FONCTIONS
-// ///////////////////
-
 int main(int argc, char** argv){
 
     FilePath app = FilePath(argv[0]).dirPath();
@@ -104,6 +56,10 @@ int main(int argc, char** argv){
     glewInit();
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
+
+    // Initialisation des models
+
+    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../../files/assets/models/models.txt"));
 
     // Initialisation de la Caméra freefly
 
@@ -178,8 +134,7 @@ int main(int argc, char** argv){
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        string filepathModels = app + FilePath("../../../files/assets/models/models.txt");
-        drawModels(filepathModels, shader);
+        drawModels(models, shader);
 
         //Update the display
         windowManager.swapBuffers();
