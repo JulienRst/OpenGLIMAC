@@ -78,33 +78,20 @@ int main(int argc, char** argv){
     int loop = true;
     float xOffset, yOffset;
 
- // ****************************** SOUNDS LOADING ****************************** //
 
-	InitAudio();
+    // **** SOUND **** 
+    SDL_Init(SDL_INIT_AUDIO);
+    InitAudio();
+   // SDL_Surface *ecran = NULL;
+    //ecran = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);
+    // SDL_WM_SetCaption("SDL_Mixer", NULL);
+   //SDL_Flip(ecran);
 
- 	//Sons de base
-    vector<Mix_Chunk*> soundList;
- 	soundList.push_back(LoadSound("assets/sounds/batman_saut.wav"));
- // 	niveau_4->soundList[1] = LoadSound("../sounds/racket.wav");
- //     niveau_4->soundList[2] = LoadSound("sounds/brick.wav");
- // 	niveau_4->soundList[3] = LoadSound("sounds/bonus.wav");
- // 	niveau_4->soundList[4] = LoadSound("sounds/lost.wav");
- // 	niveau_4->soundList[5] = LoadSound("sounds/win.wav");
-
- 	//Son des girls
- 	// niveau_4->soundList[6] = LoadSound("sounds/girls/girl01.wav");
- 	// niveau_4->soundList[7] = LoadSound("sounds/girls/girl02.wav");
- 	// niveau_4->soundList[8] = LoadSound("sounds/girls/girl03.wav");
- 	// niveau_4->soundList[9] = LoadSound("sounds/girls/girl04.wav");
-
- 	//Musique du menu !!
- 	//niveau_4->musicList[0] = LoadMusic("assets/sounds/bruit_menu.mp3");
-
- 	//PlayMusic(opening, -1);
- 	// for(k = 0; k < 10; k++){
- 	// 	niveau_4->soundEventTab[i] = VOID;
- 	// }
-
+    //Sons de base
+    vector<Mix_Music*> musicList;
+    //Musique du menu !!
+    musicList.push_back(LoadMusic("../../assets/sounds/batman_saut.wav"));
+    PlayMusic(musicList[0], -1); // -1 pour infini
 
 
 
@@ -178,6 +165,9 @@ int main(int argc, char** argv){
         windowManager.swapBuffers();
     }
 
+    FreeMusic(musicList[0]);
+    QuitAudio();
+    SDL_Quit();
     return EXIT_SUCCESS;
 }
 

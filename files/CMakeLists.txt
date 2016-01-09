@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(3D_interactive_scenario_visualizer)
+project(OpenGLIMAC)
 
 add_definitions(-std=c++11)
 add_definitions(-Wall)
 add_definitions(-O2)
 add_definitions(-lassimp)
+add_definitions(-lSDL)
 add_definitions(-lSDL_mixer)
 
 
@@ -24,9 +25,9 @@ set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "")
 add_subdirectory(third-party/assimp)
 
 
-include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} engine/include glimac/include third-party/include)
+include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} engine/include glimac/include third-party/include)
 
-set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY})
+set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${SDL_MIXER_LIBRARY})
 
 add_subdirectory(glimac)
 add_subdirectory(engine)
