@@ -12,7 +12,6 @@ add_definitions(-lSDL)
 add_definitions(-lSDL_mixer)
 add_definitions(-g)
 
-
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third-party/CMake)
 
 find_package(SDL REQUIRED)

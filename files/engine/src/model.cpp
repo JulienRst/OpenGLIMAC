@@ -1,26 +1,71 @@
 #include "engine/model.hpp"
+
 using namespace std;
+using namespace glm;
 
 /*  Functions   */
-// Constructor, expects a filepath to a 3D model.
-Model::Model(string path)
-{
+// Constructor, expects filepath and floats of matrices translate and scale
+Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz){
+    m_modelmat = mat4();
+    m_modelmat = translate(m_modelmat, vec3(tx, ty, tz));
+    m_modelmat = scale(m_modelmat, vec3(sx, sy, sz));
+
     this->loadModel(path);
 }
 
 // Draws the model, and thus all its meshes
 void Model::Draw(Shader shader)
 {
-    for(GLuint i = 0; i < this->meshes.size(); i++)
+    for(GLuint i = 0; i < this->meshes.size(); i++){
         this->meshes[i].Draw(shader);
+    }
+}
+//Creates a map of models pointers from file
+map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
+    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
+    myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
+    map<int, unique_ptr<Model> > models;
+        string path, line; //path est une variable temporaire
+        string stx, sty, stz, ssx, ssy, ssz;
+        float tx, ty, tz, sx, sy, sz;
+         if (!myFile.is_open()){
+             std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
+         }
+         int i = 0;
+        while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
+            istringstream lineStream(line); //on prend les données de la ligne suivante
+            lineStream >> path >> stx >> sty >> stz >> ssx >> ssy >> ssz; //on rentre les données de la ligne dans les différentes variables temporaires
+            tx = stof(stx);
+            ty = stof(sty);
+            tz = stof(stz);
+            sx = stof(ssx);
+            sy = stof(ssy);
+            sz = stof(ssz);
+            models[i].reset(new Model(path, tx, ty, tz, sx, sy, sz));
+            ++i;
+        }
+    myFile.close();
+    return models;
 }
 
-/*  Model Data  */
-vector<Mesh> meshes;
-string directory;
-vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
+//Create the models with the path, translate and scale matrix
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader){
+        //Load a list of ModelMatrix from a text file
+        GLuint i;
+        for(i = 0; i < models.size(); i++){
+            glm::mat4 model;
+            model = models.at(i)->getModelMatrix();
+            glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+            models.at(i)->Draw(shader);
+        }
+}
 
 /*  Functions   */
+
+glm::mat4 Model::getModelMatrix(){
+    return m_modelmat;
+}
+
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)
 {

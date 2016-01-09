@@ -1,6 +1,15 @@
 #include <cstdlib>
 #include <iostream>
+<<<<<<< HEAD
 
+=======
+#include <fstream>
+#include <cstdlib>
+#include <vector>
+#include <map>
+#include <set>
+#include <memory>
+>>>>>>> dev
 #include <string>
 
 #include <glimac/glm.hpp>
@@ -14,7 +23,10 @@
 #include "engine/shader.hpp"
 #include "engine/freefly.hpp"
 #include "engine/mouse.hpp"
+<<<<<<< HEAD
 #include "engine/music.hpp"
+=======
+>>>>>>> dev
 
 // -------- NAMESPACE -------------- //
 
@@ -24,6 +36,26 @@ using namespace glimac;
 
 // TODO Ajouter ici l'initialisation de la caméra de Chamse
 
+<<<<<<< HEAD
+=======
+map<string, unique_ptr<Model> > modelsFromFile(string filepath){
+    ifstream myFile;                                                                                           //creation du ifstream qui contiendra les données du fichier
+    myFile.open(filepath);                                          //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
+    map<string, unique_ptr<Model> > models;
+    if (myFile.is_open()) {
+        string path, line;                                                                                       //path est une variable temporaire
+        float tx, ty, tz, sx, sy, sz;
+        while(getline(myFile, line)){                                                                   //tant qu'il existe une ligne après celle-ci{
+            istringstream lineStream(line);                                                            //on prend les données de la ligne suivante
+            lineStream >> path >> tx >> ty >> tz >> sx >> sy >> sz;                  //on rentre les données de la ligne dans les différentes variables temporaires
+            models[path] = new Model(path, tx, ty, tz, sx, sy, sz);
+        }
+    }
+    myFile.close();   
+    return models;
+}
+
+>>>>>>> dev
 int main(int argc, char** argv){
 
     // -------- GLOBAL VARIABLE -------------- //
@@ -66,13 +98,26 @@ int main(int argc, char** argv){
     //Load & Compile Shader
     Shader shader("shaders/model_loading.vs","shaders/model_loading.frag");
 
+<<<<<<< HEAD
     //Load Modele
     Model nanosuit("../../assets/models/nanosuit/nanosuit.obj");
     Model stormtrooper("../../assets/models/stormtrooper/Stormtrooper.obj");
+=======
+    //Load a list of ModelMatrix from a text file
+    ///////////////
+   map<string, unique_ptr<Model> > models = modelsFromFile("files/assets/models/models.txt");
+  
+    //////////////                                                                                       //Fermeture du fichier
+
+    //Create the models with the path, translate and scale matrix
+    Model& nanosuit = models["nanosuit.obj"];
+    Model& stormtrooper = models["stormtrooper.obj"];
+>>>>>>> dev
 
     int loop = true;
     float xOffset, yOffset;
 
+<<<<<<< HEAD
  // ****************************** SOUNDS LOADING ****************************** //
 
  	int k;  ------POUR SOUDS LOADING------
@@ -110,6 +155,8 @@ int main(int argc, char** argv){
 
 
 
+=======
+>>>>>>> dev
     while(loop){
         // Event loop:
         SDL_Event e;
@@ -124,11 +171,19 @@ int main(int argc, char** argv){
         //Lancement des shaders
         shader.Use();
         // ---------------------------- RECUPERATION DES EVENTS CLAVIER / UPDATE CAMERA
+<<<<<<< HEAD
         xOffset = windowManager.getMousePosition().x - mouse.lastX;// - 960;
         yOffset = windowManager.getMousePosition().y - mouse.lastY;// - 540;
 
         mouse.lastX = windowManager.getMousePosition().x;// - 960;
         mouse.lastY = windowManager.getMousePosition().y;// - 540;
+=======
+        xOffset = windowManager.getMousePosition().x - mouse.lastX - 960;
+        yOffset = windowManager.getMousePosition().y - mouse.lastY - 540;
+
+        mouse.lastX = windowManager.getMousePosition().x - 960;
+        mouse.lastY = windowManager.getMousePosition().y - 540;
+>>>>>>> dev
 
         camera.ProcessMouseMovement(xOffset,yOffset);
 
@@ -164,6 +219,7 @@ int main(int argc, char** argv){
 
         // Draw the loaded model
         glm::mat4 model;
+<<<<<<< HEAD
         model = glm::translate(model, glm::vec3(0.0f, -7.0f, -20.0f)); // Translate it down a bit so it's at the center of the scene
         model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f)); // It's a bit too big for our scene, so scale it down
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
@@ -176,12 +232,23 @@ int main(int argc, char** argv){
 
 
 
+=======
+        model = nanosuit.getModelMatrix()); // Translate it down a bit so it's at the center of the scene. It's a bit too big for our scene, so scale it down too. We get the modelmatrix from the attribute. It is a translation*rotation matrix
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        nanosuit.Draw(shader);
+
+        model = stormtrooper.getModelMatrix();
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        stormtrooper.Draw(shader);
+
+>>>>>>> dev
         // Update the display
         windowManager.swapBuffers();
     }
 
     return EXIT_SUCCESS;
 }
+<<<<<<< HEAD
 
 
 
@@ -525,3 +592,5 @@ int main(int argc, char** argv){
 // Mix_FreeMusic(mus2);
 // return 0;
 // }
+=======
+>>>>>>> dev
