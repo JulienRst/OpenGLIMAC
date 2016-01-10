@@ -1,16 +1,23 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(3D_interactive_scenario_visualizer)
+project(OpenGLIMAC)
+
+set(EXECUTABLE_OUTPUT_PATH ./)
 
 add_definitions(-std=c++11)
 add_definitions(-Wall)
+add_definitions(-W)
+add_definitions(-O)
 add_definitions(-O2)
 add_definitions(-lassimp)
+add_definitions(-lSDL)
+add_definitions(-lSDL_mixer)
 add_definitions(-g)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third-party/CMake)
 
 find_package(SDL REQUIRED)
+find_package(SDL_mixer REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
@@ -22,13 +29,24 @@ include_directories(third-party/assimp/include)
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "")
 add_subdirectory(third-party/assimp)
 
+include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} engine/include glimac/include third-party/include)
 
-include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} engine/include glimac/include third-party/include)
-
-set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY})
+set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${SDL_MIXER_LIBRARY})
 
 add_subdirectory(glimac)
 add_subdirectory(engine)
+
+file(COPY
+    assets
+    DESTINATION
+    ${EXECUTABLE_OUTPUT_PATH}
+)
+file(
+    COPY
+    shaders
+    DESTINATION
+    ${EXECUTABLE_OUTPUT_PATH}
+)
 
 file(GLOB SOURCE_DIRECTORY "game")
 

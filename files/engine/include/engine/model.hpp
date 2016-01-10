@@ -13,6 +13,7 @@
 
 // GL Includes
 #include <GL/glew.h> // Contains all the necessery OpenGL includes
+#include <glimac/glm.hpp>
 //#include <SOIL.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
