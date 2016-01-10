@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(OpenGLIMAC)
 
+set(EXECUTABLE_OUTPUT_PATH ./)
+
 add_definitions(-std=c++11)
 add_definitions(-Wall)
 add_definitions(-W)
@@ -34,6 +36,18 @@ set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW
 
 add_subdirectory(glimac)
 add_subdirectory(engine)
+
+file(COPY
+    assets
+    DESTINATION
+    ${EXECUTABLE_OUTPUT_PATH}
+)
+file(
+    COPY
+    shaders
+    DESTINATION
+    ${EXECUTABLE_OUTPUT_PATH}
+)
 
 file(GLOB SOURCE_DIRECTORY "game")
 
