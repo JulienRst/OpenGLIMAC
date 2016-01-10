@@ -29,7 +29,7 @@ public:
 		return m_nGLId;
 	}
 
-	void attachShader(const Shader& shader) {
+	void attachShader(const GLShader& shader) {
 		glAttachShader(m_nGLId, shader.getGLId());
 	}
 

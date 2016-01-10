@@ -26,32 +26,27 @@ using namespace glimac;
 
 // -------- VARIABLES --------------//
 
-struct Vertex2DUV{
-    glm::vec2 position;
+struct Vertex3DUV{
+    glm::vec3 position;
     glm::vec2 textpos;
 
-    Vertex2DUV(){
-        position = glm::vec2(0,0);
+    Vertex3DUV(){
+        position = glm::vec3(0,0,0);
         textpos = glm::vec2(0,0);
     }
 
-    Vertex2DUV(glm::vec2 p, glm::vec2 t){
+    Vertex3DUV(glm::vec3 p, glm::vec2 t){
         position = p;
         textpos = t;
     }
 };
 
-mat3 translate(float tx, float ty){
-    return mat3(vec3(1.f,0.f,0.f),vec3(0.f,1.f,0.f),vec3(tx,ty,1.f));
+mat3 translate(float tx, float ty, float tz){
+    return mat3(vec3(1.f,0.f,0.f),vec3(0.f,1.f,0.f),vec3(tx,ty,tz));
 }
 
-mat3 scale(float sx, float sy){
-    return mat3(vec3(sx,0.f,0.f),vec3(0.f,sy,0.f),vec3(0.f,0.f,1.f));
-}
-
-mat3 rotate(float a){
-    float alpha = radians(a);
-    return mat3(vec3(cos(alpha),sin(alpha),0.f),vec3(-sin(alpha),cos(alpha),0.f),vec3(0.f,0.f,1.f)); 
+mat3 scale(float sx, float sy, float sz){
+    return mat3(vec3(sx,0.f,0.f),vec3(0.f,sy,0.f),vec3(0.f,0.f,sz));
 }
 
 // -------- MAIN PROGRAM -------------- //
@@ -83,10 +78,6 @@ int main(int argc, char** argv){
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
 
-    // Initialize Models
-    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
-
-    // Initialize Camera FreeFly & it's viewMatrix
     Camera camera = Camera();
     mat4 viewMatrix;
 
@@ -114,6 +105,7 @@ int main(int argc, char** argv){
         // ------- GENERAL MUSIQUE ----- //
 
     //Music for the Menu
+    musicList.push_back(LoadMusic((app + "assets/sounds/genesis.mp3").c_str()));
     musicList.push_back(LoadMusic((app + "assets/sounds/bruit_menu.mp3").c_str()));
     PlayMusic(musicList[0], -1); // -1 to load at infinity
 
@@ -139,11 +131,8 @@ int main(int argc, char** argv){
     Uint32 lastFootStep = 0;
     Uint32 limitBetweenFootStep = 600; // ms min between two foot step sound
 
-
-
-
         // -------------------------------------------- //
-        // ------------ LOOP OF THE MENU -------------- //
+        // ------------------ MENU -------------------- //
         // -------------------------------------------- //
 
         
@@ -158,17 +147,17 @@ int main(int argc, char** argv){
     //On peut à présent modfiier le VBO en passant par la cible GL_ARRAY_BUFFER
 
     //On crée un tableau de GLfloat contenant les coordonnées
-    Vertex2DUV vertices[] =  {
-        Vertex2DUV(glm::vec2(-1, 1),glm::vec2(0.f,1.f)),
-        Vertex2DUV(glm::vec2(1, 1),glm::vec2(1.f,1.f)),
-        Vertex2DUV(glm::vec2(1, -1),glm::vec2(0.5,0.f)),
-        Vertex2DUV(glm::vec2(-1, 1),glm::vec2(0.f,1.f)),
-        Vertex2DUV(glm::vec2(1, -1),glm::vec2(1.f,1.f)),
-        Vertex2DUV(glm::vec2(-1, -1),glm::vec2(0.5,0.f))
+    Vertex3DUV vertices[] =  {
+        Vertex3DUV(glm::vec3(-1., 1., -2.),glm::vec2(0.f, 0.f)),
+        Vertex3DUV(glm::vec3(1., 1., -2.),glm::vec2(1.f, 0.f)),
+        Vertex3DUV(glm::vec3(1., -1., -2.),glm::vec2(1., 1.f)),
+        Vertex3DUV(glm::vec3(-1., 1., -2.),glm::vec2(0.f, 0.f)),
+        Vertex3DUV(glm::vec3(1., -1., -2.),glm::vec2(1.f, 1.f)),
+        Vertex3DUV(glm::vec3(-1., -1., -2.),glm::vec2(0., 1.f))
     };
 
      //On envoie les données au buffer GL_ARRAY_BUFFER (que l'on a bindé précédement)
-    glBufferData(GL_ARRAY_BUFFER,6 * sizeof(Vertex2DUV), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,6 * sizeof(Vertex3DUV), vertices, GL_STATIC_DRAW);
     //Après avoir modifier le buffer on peut le débinder pour éviter de le modifier inutilement 
     glBindBuffer(GL_ARRAY_BUFFER,0);
 
@@ -191,8 +180,8 @@ int main(int argc, char** argv){
 
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     //On spécifie le format de l'attribut de somemt position
-    glVertexAttribPointer(VERTEX_ATTR_POSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, position));
-    glVertexAttribPointer(VERTEX_ATTR_TEXTPOSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, textpos));
+    glVertexAttribPointer(VERTEX_ATTR_POSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex3DUV),(const GLvoid*)offsetof(Vertex3DUV, position));
+    glVertexAttribPointer(VERTEX_ATTR_TEXTPOSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex3DUV),(const GLvoid*)offsetof(Vertex3DUV, textpos));
     //On debind le VBO
     glBindBuffer(GL_ARRAY_BUFFER,0);
     //On debind le VAO
@@ -215,7 +204,7 @@ int main(int argc, char** argv){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-     glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(GL_TEXTURE_2D,0);
 
 
 
@@ -233,134 +222,181 @@ int main(int argc, char** argv){
         //HELP
         //GO ===> RUN GAME
 
-
+    int loop_game = false;
+    int loop_menu = true;
         // -------------------------------------------- //
         // ----------- LOOP OF THE PROGRAM ------------ //
         // -------------------------------------------- //
 
-    int loop = true;
-    while(loop){
+         while(loop_menu == true){
+                std::cout << "Dans la boucle loop_menu" << std::endl;
+                // ---------------------------- CHECK IF SDL QUIT
+                SDL_Event e;
+                while(windowManager.pollEvent(e)) {
+                    if(e.type == SDL_QUIT) {
+                        loop_menu = false; 
+                        loop_game = false; // Leave the loop after this iteration
+                        std::cout << "SDL_Quit : loop_menu = " << loop_menu << std::endl;
+                        std::cout << "SDL_Quit : loop_game = " << loop_game << std::endl;
+                    }
+                }
 
-        // ---------------------------- CHECK IF SDL QUIT
-        SDL_Event e;
-        while(windowManager.pollEvent(e)) {
-            if(e.type == SDL_QUIT) {
-                loop = false; // Leave the loop after this iteration
+                // ---------------------------- GL CLEAR
+                glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+                // ---------------------------- LAUNCH OF SHADDER
+                shader_menu.Use();
+
+                // ---------------------------- GET MOUSE
+                xOffset = windowManager.getMousePosition().x - mouse.lastX;
+                yOffset = windowManager.getMousePosition().y - mouse.lastY;
+                mouse.lastX = windowManager.getMousePosition().x;
+                mouse.lastY = windowManager.getMousePosition().y;
+
+                    // ---------------------------------------------
+                    // ---------------------------- PROCESS KEYBOARD
+                    // ---------------------------------------------
+
+                // ----------------------------- ENTER : Go to GAME : TODO : REMOVE IT !!
+                if(windowManager.isKeyPressed(SDLK_RETURN)){
+                    std::cout << "enter is key_pressed : loop_menu = " << loop_menu << std::endl;
+                    loop_menu = false;
+                    loop_game = true;
+                    std::cout << "leave is key_pressed : loop_menu = " << loop_menu << std::endl;
+                    std::cout << "leave is key_pressed : loop_game = " << loop_game << std::endl;
+
+                }
+
+                    // ---------------------------------------------
+                    // --------------------------------- SEND MATRIX
+                    // ---------------------------------------------
+
+                // ---------------------------- GET THE VIEW MATRIX FROM CAMERA
+                viewMatrix = glm::mat4();
+                // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
+                glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
+                glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+                glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+                GLint id = glGetUniformLocation(shader_menu.getGLId(),"uModelMatrix");
+                GLint id_color = glGetUniformLocation(shader_menu.getGLId(),"uColor");
+                GLint id_texture = glGetUniformLocation(shader_menu.getGLId(),"uTexture");
+
+                // ---------------------------- On veut faire le menu 
+                // On rebind notre VAO
+                glBindVertexArray(vao);
+                glBindTexture(GL_TEXTURE_2D,texturesMenu);
+                glUniform1i(id_texture,0);
+                    // On dessine en précisant ce que l'on dessine, puis où l'on commence, puis combien de valeurs on utilise
+                    glDrawArrays(GL_TRIANGLES,0,3);
+                    glDrawArrays(GL_TRIANGLES,0,3);
+                // On debind notre VAO
+                glBindTexture(GL_TEXTURE_2D,0);
+                glBindVertexArray(0);
+
+                // ---------------------------- SWAP THE BUFFERS
+                windowManager.swapBuffers();
+                std::cout << "swapping Buffers" << std::endl;
+        }
+
+        PlayMusic(musicList[1], -1); // -1 to load at infinity
+        // Initialize Models
+        map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+
+
+        while(loop_game == true){
+            // ---------------------------- CHECK IF SDL QUIT
+            SDL_Event e;
+            while(windowManager.pollEvent(e)) {
+                if(e.type == SDL_QUIT) {
+                    loop_game = false; // Leave the loop after this iteration
+                }
             }
-        }
 
-        // ---------------------------- GL CLEAR
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            // ---------------------------- GL CLEAR
+            glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // ---------------------------- LAUNCH OF SHADDER
-        shader_models.Use();
-        shader_menu.Use();
+            // ---------------------------- LAUNCH OF SHADDER
+            shader_models.Use();
 
-        // ---------------------------- GET MOUSE
-        xOffset = windowManager.getMousePosition().x - mouse.lastX;
-        yOffset = windowManager.getMousePosition().y - mouse.lastY;
-        mouse.lastX = windowManager.getMousePosition().x;
-        mouse.lastY = windowManager.getMousePosition().y;
+            // ---------------------------- GET MOUSE
+            xOffset = windowManager.getMousePosition().x - mouse.lastX;
+            yOffset = windowManager.getMousePosition().y - mouse.lastY;
+            mouse.lastX = windowManager.getMousePosition().x;
+            mouse.lastY = windowManager.getMousePosition().y;
 
-        // ---------------------------- UPDATE CAMERA
-        camera.ProcessMouseMovement(xOffset,yOffset);
+            // ---------------------------- UPDATE CAMERA
+            camera.ProcessMouseMovement(xOffset,yOffset);
 
-        // ---------------------------- PROCESS JUMP
-        camera.ProcessJump();
+            // ---------------------------- PROCESS JUMP
+            camera.ProcessJump();
 
-            // ---------------------------------------------
-            // ---------------------------- PROCESS KEYBOARD
-            // ---------------------------------------------
-        // ---------------------------- Initalize movement to FALSE
-        bool isMovement = false;
-        // ---------------------------- Z : Forward
-        if(windowManager.isKeyPressed(SDLK_z)){
-            camera.MoveFront(0.010);
-            isMovement = true;
-        }
-        // ---------------------------- Q : Left
-        if(windowManager.isKeyPressed(SDLK_q)){
-            camera.MoveRight(-0.010);
-            isMovement = true;
-        }
-        // ---------------------------- S : Backward
-        if(windowManager.isKeyPressed(SDLK_s)){
-            camera.MoveFront(-0.010);
-            isMovement = true;
-        }
-        // ---------------------------- D : Right
-        if(windowManager.isKeyPressed(SDLK_d)){
-            camera.MoveRight(0.010);
-            isMovement = true;
-        }
-        // ---------------------------- SPACE : Jump
-        if(windowManager.isKeyPressed(SDLK_SPACE))
-            camera.launchJump();
+                // ---------------------------------------------
+                // ---------------------------- PROCESS KEYBOARD
+                // ---------------------------------------------
+            // ---------------------------- Initalize movement to FALSE
+            bool isMovement = false;
+            // ---------------------------- Z : Forward
+            if(windowManager.isKeyPressed(SDLK_z)){
+                camera.MoveFront(0.010);
+                isMovement = true;
+            }
+            // ---------------------------- Q : Left
+            if(windowManager.isKeyPressed(SDLK_q)){
+                camera.MoveRight(-0.010);
+                isMovement = true;
+            }
+            // ---------------------------- S : Backward
+            if(windowManager.isKeyPressed(SDLK_s)){
+                camera.MoveFront(-0.010);
+                isMovement = true;
+            }
+            // ---------------------------- D : Right
+            if(windowManager.isKeyPressed(SDLK_d)){
+                camera.MoveRight(0.010);
+                isMovement = true;
+            }
+            // ---------------------------- SPACE : Jump
+            if(windowManager.isKeyPressed(SDLK_SPACE)) {
+                camera.launchJump();
+            }
 
-        if(isMovement && SDL_GetTicks() - lastFootStep > limitBetweenFootStep){
-            PlaySound(chunkList[0]);
-            lastFootStep = SDL_GetTicks();
-        }
-        // ---------------------------- SHIFT : Run
-        if(windowManager.isKeyPressed(SDLK_LSHIFT)){
-            limitBetweenFootStep = 400;
-            camera.isShiftPressed = true;
-        } else {
-            limitBetweenFootStep = 600;
-            camera.isShiftPressed = false;
-        }
-        // ----------------------------- ENTER : Go to next level : TODO : REMOVE IT !!
-        if(windowManager.isKeyPressed(SDLK_RETURN)){
-            models = modelsFromFile(app + FilePath("assets/models/models2.txt"));
-        }
-
+            if(isMovement && SDL_GetTicks() - lastFootStep > limitBetweenFootStep){
+                PlaySound(chunkList[0]);
+                lastFootStep = SDL_GetTicks();
+            }
+            // ---------------------------- SHIFT : Run
+            if(windowManager.isKeyPressed(SDLK_LSHIFT)){
+                limitBetweenFootStep = 400;
+                camera.isShiftPressed = true;
+            } else {
+                limitBetweenFootStep = 600;
+                camera.isShiftPressed = false;
+            }
+            // ----------------------------- ENTER : Go to next level : TODO : REMOVE IT !!
+            if(windowManager.isKeyPressed(SDLK_RETURN)){
+                models = modelsFromFile(app + FilePath("assets/models/models2.txt"));
+            }
 
             // ---------------------------------------------
             // --------------------------------- SEND MATRIX
             // ---------------------------------------------
+            // ---------------------------- GET THE VIEW MATRIX FROM CAMERA
+            viewMatrix = camera.GetViewMatrix();
+            // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
+            glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
+            glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+            glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+            // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS(
+            drawModels(models, shader_models);
+            // ---------------------------- SWAP THE BUFFERS
+            windowManager.swapBuffers();
 
-        // ---------------------------- GET THE VIEW MATRIX FROM CAMERA
-        viewMatrix = camera.GetViewMatrix();
-        // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
-        glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        GLint id = glGetUniformLocation(shader_menu.getGLId(),"uModelMatrix");
-        GLint id_color = glGetUniformLocation(shader_menu.getGLId(),"uColor");
-        GLint id_texture = glGetUniformLocation(shader_menu.getGLId(),"uTexture");
-        // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
-        drawModels(models, shader_models);
-        drawModels(models, shader_menu);
-
-        // ---------------------------- On veut faire le menu 
-        // On rebind notre VAO
-        glBindVertexArray(vao);
-        glBindTexture(GL_TEXTURE_2D,texturesMenu);
-        glUniform1i(id_texture,0);
-        // On dessine en précisant ce que l'on dessine, puis où l'on commence, puis combien de valeurs on utilise
-        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(0.5,0.5) * rotate(-2*angle) * scale(0.25,0.25)));
-        glDrawArrays(GL_TRIANGLES,0,3);
-        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(-0.5,0.5) * rotate(-2*angle) * scale(0.25,0.25)));
-        glDrawArrays(GL_TRIANGLES,0,3);
-        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(0.5,-0.5) * rotate(-2*angle) * scale(0.25,0.25)));
-        glDrawArrays(GL_TRIANGLES,0,3);
-        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(-0.5,-0.5) * rotate(-2*angle) * scale(0.25,0.25)));
-        glDrawArrays(GL_TRIANGLES,0,3);
-        // On debind notre VAO
-        glBindTexture(GL_TEXTURE_2D,0);
-        glBindVertexArray(0);
-
-
-
-
-        // ---------------------------- SWAP THE BUFFERS
-        windowManager.swapBuffers();
-    }
-
-    // --------------------------------------------- //
-    // ---------- FREE AND LEAVE PROPERLY ---------- //
-    // --------------------------------------------- //
+        }
+        // --------------------------------------------- //
+        // ---------- FREE AND LEAVE PROPERLY ---------- //
+        // --------------------------------------------- //
 
     glDeleteBuffers(1,&vbo);
     glDeleteVertexArrays(1,&vao);
@@ -370,6 +406,7 @@ int main(int argc, char** argv){
     FreeMusic(musicList[0]);
     QuitAudio();
     SDL_Quit();
+    std::cout << "EXIT_SUCCESS" << std::endl;
 
     return EXIT_SUCCESS;
 }
