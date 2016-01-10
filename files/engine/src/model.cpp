@@ -29,10 +29,6 @@ void Model::Draw(Shader const& shader){
     }
 }
 
-glm::mat4 Model::getModelMatrix(int numModelMat){
-    return m_modelmatVector[numModelMat];
-}
-
 //Create the models with the path, translate and scale matrix
 void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader){
         //Load a list of ModelMatrix from a text file
@@ -40,6 +36,10 @@ void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader
         for(i = 0; i < models.size(); i++){
             models.at(i)->Draw(shader);
         }
+}
+
+glm::mat4 Model::getModelMatrix(int numModelMat){
+    return m_modelmatVector[numModelMat];
 }
 
 //Creates a map of models pointers from file
@@ -54,28 +54,54 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
          }
          int i = 0;
+         bool first_model_already_exists = false; 
+         std::vector<float> xyz;
+        
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path ;
-            std::vector<float> xyz;
 
-            while(lineStream >> stx >> sty >> stz >> ssx >> ssy >> ssz){
-            //on rentre les données de la ligne dans les différentes variables temporaires
-                std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
-                xyz.push_back(stof(stx));
-                xyz.push_back(stof(sty));
-                xyz.push_back(stof(stz));
-                xyz.push_back(stof(ssx));
-                xyz.push_back(stof(ssy));
-                xyz.push_back(stof(ssz));
+            lineStream >> stx; //The first "word" of the line goes into stx
+
+            if(stx == "Model" || stx == "Fin"){
+                if(first_model_already_exists == true){
+                    //std::cout << "i = " << i << std::endl;
+                    models[i].reset(new Model(path, xyz));
+                    //test display
+                    // if(models[i] != NULL){ std::cout << "Création de unique_ptr de model " << path << std::endl; }
+                    // else{ std::cout << "ERREUR MODEL[i] !!" << std::endl;}
+                    // if(i == 0){
+                    // std::cout << i << models[i]->getModelMatrix(0) << std::endl << models[i]->getModelMatrix(1)  << std::endl << models[i]->getModelMatrix(2) << std::endl;
+                    // }
+                    // if(i == 1){
+                    //std::cout << i << models[i]->getModelMatrix(0) << std::endl << models[i]->getModelMatrix(1)  << std::endl << models[i]->getModelMatrix(2) << std::endl << models[i]->getModelMatrix(3) << std::endl;
+                    //end test display
+                    //}
+                    xyz.clear(); //xyz has to be clean again for the new model
+                    ++i;
+                }  
+                if(stx == "Model"){ lineStream >> path; } //Beginning of a new model
             }
-            std::cout << i << xyz[0] << xyz[1] << std::endl;
-            models[i].reset(new Model(path, xyz));
-            //std::cout << i << models[i]->getModelMatrix(0) << std::endl << models[i]->getModelMatrix(1) << std::endl;
-
-            ++i;
+            else{
+                lineStream >> sty >> stz >> ssx >> ssy >> ssz;
+                //on rentre les données de la ligne dans les différentes variables temporaires
+                //std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
+                std::vector<float> abc;
+                abc.push_back(stof(stx));
+                abc.push_back(stof(sty));
+                abc.push_back(stof(stz));
+                abc.push_back(stof(ssx));
+                abc.push_back(stof(ssy));
+                abc.push_back(stof(ssz));
+                xyz.insert(xyz.end(), abc.begin(), abc.end() );
+                // for(unsigned int b = 0; b < xyz.size(); ++b){
+                //   std::cout << xyz[b] << " ";
+                // }
+                //  std::cout << std::endl;
+            }
+            first_model_already_exists = true; //permits to create a model with the xyz created when meeting the next path
         }
     myFile.close();
+    //std::cout << "file closed" << std::endl;
     return models;
 }
 

@@ -60,7 +60,10 @@ int main(int argc, char** argv){
     // Initialisation des models
 
     map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("../../../files/assets/models/models.txt"));
-
+    // if(models.empty()){ std::cout << "Error : map de models vide" << std::endl;}
+    // else{std::cout << "map created" << std::endl;}
+    // std::cout << "first modelmat" << std::endl << models.at(0)->getModelMatrix(0) << std::endl;
+    // std::cout << "works" << std::endl;
     // Initialisation de la Caméra freefly
 
     Camera camera = Camera();
@@ -139,6 +142,7 @@ int main(int argc, char** argv){
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        //std::cout << "Before drawing models" << std::endl;
         drawModels(models, shader);
 
         //Update the display
