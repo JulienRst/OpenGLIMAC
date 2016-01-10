@@ -8,6 +8,6 @@ layout(location = 1) in vec2 aVertexTexturePosition;
 out vec2 vFragTextCoord;
 
 void main() {
-	vFragTextCoord = aVertexTexturePosition;
-	gl_Position = vec4(uModelMatrix * vec3(aVertexPosition,1), 1);
+  vFragTextCoord = aVertexTexturePosition;
+  gl_Position = vec4(uModelMatrix * vec3(aVertexPosition,0), 1);
 };
