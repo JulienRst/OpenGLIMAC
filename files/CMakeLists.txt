@@ -12,12 +12,14 @@ add_definitions(-O2)
 add_definitions(-lassimp)
 add_definitions(-lSDL)
 add_definitions(-lSDL_mixer)
+add_definitions(-lSDL_image)
 add_definitions(-g)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/third-party/CMake)
 
 find_package(SDL REQUIRED)
 find_package(SDL_mixer REQUIRED)
+find_package(SDL_image REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
@@ -29,9 +31,9 @@ include_directories(third-party/assimp/include)
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "")
 add_subdirectory(third-party/assimp)
 
-include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} engine/include glimac/include third-party/include)
+include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIRS} engine/include glimac/include third-party/include)
 
-set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${SDL_MIXER_LIBRARY})
+set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_IMAGE_LIBRARY})
 
 add_subdirectory(glimac)
 add_subdirectory(engine)

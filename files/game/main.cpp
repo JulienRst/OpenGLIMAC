@@ -61,7 +61,8 @@ int main(int argc, char** argv){
     float xOffset, yOffset;
 
     //Load & Compile Shader
-    Shader shader(app + "shaders/model_loading.vs",app + "shaders/model_loading.frag");
+    Shader shader_models(app + "shaders/model_loading.vs",app + "shaders/model_loading.frag");
+    Shader shader_skybox(app + "shaders/texture.frag",app + "shaders/texture.vs");
 
         // -------------------------------------------- //
         // -------------- SOUND VARIABLE -------------- //
@@ -124,7 +125,7 @@ int main(int argc, char** argv){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // ---------------------------- LAUNCH OF SHADDER
-        shader.Use();
+        shader_models.Use();
 
         // ---------------------------- GET MOUSE
         xOffset = windowManager.getMousePosition().x - mouse.lastX;
@@ -193,10 +194,10 @@ int main(int argc, char** argv){
         viewMatrix = camera.GetViewMatrix();
         // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
         // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
-        drawModels(models, shader);
+        drawModels(models, shader_models);
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();
     }
