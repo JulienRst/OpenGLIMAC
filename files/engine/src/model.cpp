@@ -112,11 +112,7 @@ void Model::loadModel(string path)
 {
     // Read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile( path, 
-        aiProcess_CalcTangentSpace       | 
-        aiProcess_Triangulate            |
-        aiProcess_JoinIdenticalVertices  |
-        aiProcess_SortByPType);
+    const aiScene* scene = importer.ReadFile( path, aiProcess_Triangulate | aiProcess_FlipUVs);
       // Check for errors
     ifstream myFile; //creation du ifstream qui contiendra les données du fichier
     myFile.open(path);
@@ -127,11 +123,12 @@ void Model::loadModel(string path)
 
     if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
-        cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+        std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
     }
     // Retrieve the directory path of the filepath
     this->directory = path.substr(0, path.find_last_of('/'));
+        std::cout << "directory du model " << path.substr(0, path.find_last_of('/')) << std::endl;
 
     // Process ASSIMP's root node recursively
     this->processNode(scene->mRootNode, scene);
@@ -140,13 +137,16 @@ void Model::loadModel(string path)
 // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
+    std::cout << "nombre de mesh : " << node->mNumMeshes << std::endl;
     // Process each mesh located at the current node
     for(GLuint i = 0; i < node->mNumMeshes; i++)
     {
         // The node object only contains indices to index the actual objects in the scene.
         // The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        std::cout << "Préparation du Process de Mesh numéro : " << i << std::endl;
         this->meshes.push_back(this->processMesh(mesh, scene));
+        std::cout << "Réussite du Process de Mesh numéro : " << i << std::endl;
     }
     // After we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for(GLuint i = 0; i < node->mNumChildren; i++)
@@ -178,6 +178,10 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
         vertex.Normal = vector;
+
+        std::cout << "mVertices[" << i << "] xyz : " << mesh->mVertices[i].x << " " << mesh->mVertices[i].y << " "  << mesh->mVertices[i].z << " "  << std::endl;
+        std::cout << "mNormals[" << i << "] xyz : " << mesh->mVertices[i].x << " " << mesh->mVertices[i].y << " "  << mesh->mVertices[i].z << " "  << std::endl;
+
         // Texture Coordinates
         if(mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates?
         {
