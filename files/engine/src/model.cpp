@@ -112,8 +112,12 @@ void Model::loadModel(string path)
 {
     // Read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-    // Check for errors
+    const aiScene* scene = importer.ReadFile( path, 
+        aiProcess_CalcTangentSpace       | 
+        aiProcess_Triangulate            |
+        aiProcess_JoinIdenticalVertices  |
+        aiProcess_SortByPType);
+      // Check for errors
     ifstream myFile; //creation du ifstream qui contiendra les données du fichier
     myFile.open(path);
     if(!myFile.is_open()){
