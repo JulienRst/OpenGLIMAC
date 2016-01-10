@@ -4,6 +4,8 @@
 // --- Include Needed From GLImac --- //
 #include <glimac/SDLWindowManager.hpp>
 #include <glimac/FilePath.hpp>
+#include <glimac/Program.hpp>
+#include <glimac/Image.hpp>
 // --- Include Glew --- //
 #include <GL/glew.h>
 // --- Include Needed From Engine --- //
@@ -14,11 +16,43 @@
 #include "engine/mouse.hpp"
 #include "engine/music.hpp"
 
+
 // -------- NAMESPACE -------------- //
 
 using namespace glm;
 using namespace std;
 using namespace glimac;
+
+
+// -------- VARIABLES --------------//
+
+struct Vertex2DUV{
+    glm::vec2 position;
+    glm::vec2 textpos;
+
+    Vertex2DUV(){
+        position = glm::vec2(0,0);
+        textpos = glm::vec2(0,0);
+    }
+
+    Vertex2DUV(glm::vec2 p, glm::vec2 t){
+        position = p;
+        textpos = t;
+    }
+};
+
+mat3 translate(float tx, float ty){
+    return mat3(vec3(1.f,0.f,0.f),vec3(0.f,1.f,0.f),vec3(tx,ty,1.f));
+}
+
+mat3 scale(float sx, float sy){
+    return mat3(vec3(sx,0.f,0.f),vec3(0.f,sy,0.f),vec3(0.f,0.f,1.f));
+}
+
+mat3 rotate(float a){
+    float alpha = radians(a);
+    return mat3(vec3(cos(alpha),sin(alpha),0.f),vec3(-sin(alpha),cos(alpha),0.f),vec3(0.f,0.f,1.f)); 
+}
 
 // -------- MAIN PROGRAM -------------- //
 
@@ -61,7 +95,8 @@ int main(int argc, char** argv){
     float xOffset, yOffset;
 
     //Load & Compile Shader
-    Shader shader(app + "shaders/model_loading.vs",app + "shaders/model_loading.frag");
+    Shader shader_models(app + "shaders/model_loading.vs", app + "shaders/model_loading.frag");
+    Shader shader_menu(app + "shaders/text2D.vs.glsl", app + "shaders/text2D.fs.glsl");
 
         // -------------------------------------------- //
         // -------------- SOUND VARIABLE -------------- //
@@ -104,6 +139,101 @@ int main(int argc, char** argv){
     Uint32 lastFootStep = 0;
     Uint32 limitBetweenFootStep = 600; // ms min between two foot step sound
 
+
+
+
+        // -------------------------------------------- //
+        // ------------ LOOP OF THE MENU -------------- //
+        // -------------------------------------------- //
+
+        
+    //--------- VBO ----------//
+
+    //Création d'un seul VBO
+    GLuint vbo;
+    glGenBuffers(1,&vbo);
+
+    //Binding d'un VBO sur la cible GL_ARRAY_BUFFER
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    //On peut à présent modfiier le VBO en passant par la cible GL_ARRAY_BUFFER
+
+    //On crée un tableau de GLfloat contenant les coordonnées
+    Vertex2DUV vertices[] =  {
+        Vertex2DUV(glm::vec2(-1, 1),glm::vec2(0.f,1.f)),
+        Vertex2DUV(glm::vec2(1, 1),glm::vec2(1.f,1.f)),
+        Vertex2DUV(glm::vec2(1, -1),glm::vec2(0.5,0.f)),
+        Vertex2DUV(glm::vec2(-1, 1),glm::vec2(0.f,1.f)),
+        Vertex2DUV(glm::vec2(1, -1),glm::vec2(1.f,1.f)),
+        Vertex2DUV(glm::vec2(-1, -1),glm::vec2(0.5,0.f))
+    };
+
+     //On envoie les données au buffer GL_ARRAY_BUFFER (que l'on a bindé précédement)
+    glBufferData(GL_ARRAY_BUFFER,6 * sizeof(Vertex2DUV), vertices, GL_STATIC_DRAW);
+    //Après avoir modifier le buffer on peut le débinder pour éviter de le modifier inutilement 
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+
+
+    //--------- VAO ----------//
+    
+    //Création d'un VAO
+    GLuint vao; //Déclaration
+    glGenVertexArrays(1,&vao); //Affectation d'un identifiant
+    
+    //On va binder le VAO a sa cible (unique donc pas de précision)
+    glBindVertexArray(vao);
+    
+    //On active l'attribut position
+    //Code plus clair, on passe par une variable d'état
+    const GLuint VERTEX_ATTR_POSITION = 0;
+    const GLuint VERTEX_ATTR_TEXTPOSITION = 1;
+    glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
+    glEnableVertexAttribArray(VERTEX_ATTR_TEXTPOSITION);
+
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    //On spécifie le format de l'attribut de somemt position
+    glVertexAttribPointer(VERTEX_ATTR_POSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, position));
+    glVertexAttribPointer(VERTEX_ATTR_TEXTPOSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, textpos));
+    //On debind le VBO
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    //On debind le VAO
+    glBindVertexArray(0);
+
+    std::unique_ptr<Image> main_menu = loadImage("/home/julien/OpenGLIMAC/files/assets/textures/menu/menu_gabarit.png");
+        
+    if(main_menu != NULL){
+        std::cout << "Chargement de la main_menu OK" << std::endl;
+    } else {
+        std::cout << "Echec du chargement de la main_menu" << std::endl;
+    }
+
+    GLuint texturesMenu; 
+    glGenTextures(1,&texturesMenu);
+    glBindTexture(GL_TEXTURE_2D,texturesMenu);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,main_menu->getWidth(),main_menu->getHeight(),0,GL_RGBA,GL_FLOAT,main_menu->getPixels());
+    
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+     glBindTexture(GL_TEXTURE_2D,0);
+
+
+
+        //Positionner bouton hover
+
+        //Ecouteur souris sur zone bouton (--> hover)
+        //Ecouteur click souris (--> navigation)
+
+        //Gérer la page à afficher du menu
+
+        //SOUNDS
+        //EXIT
+        //CREDIT
+        //PLAY
+        //HELP
+        //GO ===> RUN GAME
+
+
         // -------------------------------------------- //
         // ----------- LOOP OF THE PROGRAM ------------ //
         // -------------------------------------------- //
@@ -124,7 +254,8 @@ int main(int argc, char** argv){
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // ---------------------------- LAUNCH OF SHADDER
-        shader.Use();
+        shader_models.Use();
+        shader_menu.Use();
 
         // ---------------------------- GET MOUSE
         xOffset = windowManager.getMousePosition().x - mouse.lastX;
@@ -193,10 +324,36 @@ int main(int argc, char** argv){
         viewMatrix = camera.GetViewMatrix();
         // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        GLint id = glGetUniformLocation(shader_menu.getGLId(),"uModelMatrix");
+        GLint id_color = glGetUniformLocation(shader_menu.getGLId(),"uColor");
+        GLint id_texture = glGetUniformLocation(shader_menu.getGLId(),"uTexture");
         // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
-        drawModels(models, shader);
+        drawModels(models, shader_models);
+        drawModels(models, shader_menu);
+
+        // ---------------------------- On veut faire le menu 
+        // On rebind notre VAO
+        glBindVertexArray(vao);
+        glBindTexture(GL_TEXTURE_2D,texturesMenu);
+        glUniform1i(id_texture,0);
+        // On dessine en précisant ce que l'on dessine, puis où l'on commence, puis combien de valeurs on utilise
+        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(0.5,0.5) * rotate(-2*angle) * scale(0.25,0.25)));
+        glDrawArrays(GL_TRIANGLES,0,3);
+        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(-0.5,0.5) * rotate(-2*angle) * scale(0.25,0.25)));
+        glDrawArrays(GL_TRIANGLES,0,3);
+        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(0.5,-0.5) * rotate(-2*angle) * scale(0.25,0.25)));
+        glDrawArrays(GL_TRIANGLES,0,3);
+        glUniformMatrix3fv(id,1, GL_FALSE, glm::value_ptr(rotate(angle) * translate(-0.5,-0.5) * rotate(-2*angle) * scale(0.25,0.25)));
+        glDrawArrays(GL_TRIANGLES,0,3);
+        // On debind notre VAO
+        glBindTexture(GL_TEXTURE_2D,0);
+        glBindVertexArray(0);
+
+
+
+
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();
     }
@@ -205,9 +362,14 @@ int main(int argc, char** argv){
     // ---------- FREE AND LEAVE PROPERLY ---------- //
     // --------------------------------------------- //
 
+    glDeleteBuffers(1,&vbo);
+    glDeleteVertexArrays(1,&vao);
+    glDeleteTextures(1,&texturesMenu);
+
     FreeSound(chunkList[0]);
     FreeMusic(musicList[0]);
     QuitAudio();
     SDL_Quit();
+
     return EXIT_SUCCESS;
 }
