@@ -1,2 +1,15 @@
-./../../../files/assets/models/nanosuit/nanosuit.obj 0.0f -7.0f -20.0f 0.5f 0.5f 0.5f
-./../../../files/assets/models/stormtrooper/Stormtrooper.obj 10.0f -7.0f -20.0f 4.0f 4.0f 4.0f
+# Template : 
+# one line : Model filepath
+# other lines : tx ty tz sx sy sz rdegréx rdegréy rdegréz
+Model ./../../../files/assets/models/stormtrooper/Stormtrooper.obj 
+-4.0f -7.0f -18.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+-7.0f -7.0f -18.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+4.0f -7.0f -18.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+7.0f -7.0f -18.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+5.5f -7.0f -15.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+-5.5f -7.0f -15.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+Model ./../../../files/assets/models/Darth_Sidious/Darth_Sidious.obj
+0.0f -7.0f -16.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+Model ./../../../files/assets/models/Darth_Sidious_Scene/Darth_Sidious_Scene.obj
+0.0f -7.0f -20.0f 2.0f 2.0f 2.0f 0.f 0.f 0.f
+Fin

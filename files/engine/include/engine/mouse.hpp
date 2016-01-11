@@ -5,8 +5,6 @@
 #include "engine/music.hpp"
 #include <string>
 
-using namespace std;
-
 class Mouse {
 public:
     float lastX;

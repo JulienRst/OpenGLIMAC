@@ -1,51 +1,49 @@
 #include "engine/model.hpp"
+#include "engine/shader.hpp"
 
 using namespace std;
 using namespace glm;
 
 /*  Functions   */
 // Constructor, expects filepath and floats of matrices translate and scale
-Model::Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz){
-    m_modelmat = mat4();
-    m_modelmat = translate(m_modelmat, vec3(tx, ty, tz));
-    m_modelmat = scale(m_modelmat, vec3(sx, sy, sz));
+Model::Model(std::string const& path, std::vector<float>& xyz){
+    GLuint i;
+    std::cout << "size de xyz : " << xyz.size() << std::endl;
+    for(i = 0; i < xyz.size(); i+=9){
+        for(int j = 0; j < 9; j++){
+        std::cout << "xyz[" << j << "] = " << xyz[j] << "  ";
+        }
+        std::cout << std::endl;
+        glm::mat4 ViewTranslate = translate(glm::mat4(1.0f), vec3(xyz[i], xyz[i+1], xyz[i+2]));
+      //  modelmat = rotate(modelmat, xyz[i+9], vec3((int)xyz[i+6], (int)xyz[i+7], (int)xyz[i+8]));
 
+        glm::mat4 ViewRotateX = glm::rotate(ViewTranslate, xyz[i+6], glm::vec3(1.f, 0.0f, 0.0f));
+        glm::mat4 ViewRotateY = glm::rotate(ViewRotateX, xyz[i+7], glm::vec3(0.0f, 1.f, 0.0f));
+        glm::mat4 View = glm::rotate(ViewRotateY, xyz[i+8], glm::vec3(0.0f, 0.0f, 1.f));
+        std::cout << ViewTranslate << std::endl;
+        glm::mat4 scaled = scale(glm::mat4(1.0f), vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
+        std::cout << ViewRotateX << std::endl;
+        std::cout << ViewRotateY << std::endl;
+        std::cout << View << std::endl;
+        std::cout << scaled << std::endl;
+        glm::mat4 modelmat = View * scaled;
+
+        std::cout << modelmat << std::endl;
+        m_modelmatVector.push_back(modelmat);
+    }
     this->loadModel(path);
 }
 
+
 // Draws the model, and thus all its meshes
-void Model::Draw(Shader const& shader)
-{
-    for(GLuint i = 0; i < this->meshes.size(); i++){
-        this->meshes[i].Draw(shader);
-    }
-}
-//Creates a map of models pointers from file
-map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
-    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
-    myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
-    map<int, unique_ptr<Model> > models;
-        string path, line; //path est une variable temporaire
-        string stx, sty, stz, ssx, ssy, ssz;
-        float tx, ty, tz, sx, sy, sz;
-         if (!myFile.is_open()){
-             std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
-         }
-         int i = 0;
-        while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
-            istringstream lineStream(line); //on prend les données de la ligne suivante
-            lineStream >> path >> stx >> sty >> stz >> ssx >> ssy >> ssz; //on rentre les données de la ligne dans les différentes variables temporaires
-            tx = stof(stx);
-            ty = stof(sty);
-            tz = stof(stz);
-            sx = stof(ssx);
-            sy = stof(ssy);
-            sz = stof(ssz);
-            models[i].reset(new Model(path, tx, ty, tz, sx, sy, sz));
-            ++i;
+void Model::Draw(Shader const& shader){
+    for(unsigned int j = 0; j < m_modelmatVector.size() ; ++j) {
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE,glm::value_ptr(glm::mat4()));
+        glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(m_modelmatVector[j]));
+        for(GLuint i = 0; i < this->meshes.size(); i++){
+            this->meshes[i].Draw(shader);
         }
-    myFile.close();
-    return models;
+    }
 }
 
 //Create the models with the path, translate and scale matrix
@@ -53,30 +51,96 @@ void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader
         //Load a list of ModelMatrix from a text file
         GLuint i;
         for(i = 0; i < models.size(); i++){
-            // ---------------------------- TRANSFORM THE MATRIX AND SEND THEM
-            glm::mat4 model;
-            model = models.at(i)->getModelMatrix();
-            glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
             models.at(i)->Draw(shader);
         }
 }
 
-/*  Functions   */
-
-glm::mat4 Model::getModelMatrix(){
-    return m_modelmat;
+glm::mat4 Model::getModelMatrix(int numModelMat){
+    return m_modelmatVector[numModelMat];
 }
+
+//Creates a map of models pointers from file
+map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
+    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
+    myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
+    std::map<int, std::unique_ptr<Model> > models;
+        string path, line; //path est une variable temporaire
+        string stx, sty, stz, ssx, ssy, ssz, srx, sry, srz;
+
+         if (!myFile.is_open()){
+             std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
+         }
+         int i = 0;
+         bool first_model_already_exists = false;
+         std::vector<float> xyz;
+
+        while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
+            istringstream lineStream(line); //on prend les données de la ligne suivante
+
+            lineStream >> stx; //The first "word" of the line goes into stx
+            if(stx != "#"){
+                std::cout << "PAS UN COMMENTAIRE : STX = " << stx << " et ";
+                if(stx == "Model" || stx == "Fin"){
+                    if(first_model_already_exists == true){
+                        std::cout << "MODEL DEJA : Creation de model" << std::endl;
+
+                        //std::cout << "i = " << i << std::endl;
+                        models[i].reset(new Model(path, xyz));
+                        xyz.clear(); //xyz has to be clean again for the new model
+                        ++i;
+                    }
+                    if(stx == "Model"){
+                     std::cout << "MODEL" << std::endl;
+                     lineStream >> path; } //Beginning of a new model
+                }
+                else{
+                    std::cout << "MATRICE" << std::endl;
+
+                    lineStream >> sty >> stz >> ssx >> ssy >> ssz >> srx >> sry >> srz;
+                    //on rentre les données de la ligne dans les différentes variables temporaires
+                    //std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
+                    std::vector<float> abc;
+                    std::cout << "abc : " << stx << sty << stz << ssx << ssy << ssz << srx << sry << srz << std::endl;
+                    abc.push_back(stof(stx));
+                    abc.push_back(stof(sty));
+                    abc.push_back(stof(stz));
+                    abc.push_back(stof(ssx));
+                    abc.push_back(stof(ssy));
+                    abc.push_back(stof(ssz));
+                    abc.push_back(stof(srx));
+                    abc.push_back(stof(sry));
+                    abc.push_back(stof(srz));
+
+                    xyz.insert(xyz.end(), abc.begin(), abc.end() );
+                }
+                first_model_already_exists = true; //permits to create a model with the xyz created when meeting the next path
+            }
+            else{ std::cout << "UN COMMENTAIRE" << std::endl;}
+        }
+    myFile.close();
+    //std::cout << "file closed" << std::endl;
+    return models;
+}
+
+/*  Functions   */
 
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)
 {
     // Read file via ASSIMP
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
-    // Check for errors
+    const aiScene* scene = importer.ReadFile( path, aiProcess_Triangulate | aiProcess_FlipUVs);
+      // Check for errors
+    ifstream myFile; //creation du ifstream qui contiendra les données du fichier
+    myFile.open(path);
+    if(!myFile.is_open()){
+        std::cerr << "Erreur: Fichier modèle non trouvé" << std::endl;
+    }
+    std::cout << "Ouverture réussie pour " << path << std::endl;
+
     if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {
-        cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+        std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
         return;
     }
     // Retrieve the directory path of the filepath
@@ -127,6 +191,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
         vertex.Normal = vector;
+
         // Texture Coordinates
         if(mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates?
         {
@@ -149,7 +214,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         for(GLuint j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
-    
+
     // Process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
     // We assume a convention for sampler names in the shaders. Each diffuse texture should be named

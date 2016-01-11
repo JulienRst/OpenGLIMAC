@@ -1,4 +1,7 @@
 #include "engine/mesh.hpp"
+#include "engine/shader.hpp"
+
+using namespace std;
 
     /*  Functions  */
     // Constructor

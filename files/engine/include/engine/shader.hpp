@@ -9,7 +9,6 @@
 
 #include <GL/glew.h> // Include glew to get all the required OpenGL headers
 
-
 class Shader
 {
 public:

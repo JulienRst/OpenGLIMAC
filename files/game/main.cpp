@@ -57,6 +57,13 @@ int main(int argc, char** argv){
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
 
+    glDepthRangef(0, 1);
+
+    // Initialize Models
+    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+
+    // Initialize Camera FreeFly & it's viewMatrix
+
     Camera camera = Camera();
     mat4 viewMatrix;
 
