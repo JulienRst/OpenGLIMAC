@@ -18,6 +18,7 @@
 #include "engine/texture.hpp"
 #include "engine/menu.hpp"
 #include "engine/carre2D.hpp"
+#include "engine/carre3D.hpp"
 // --- Include of STD Extends --- //
 #include <map>
 
@@ -57,7 +58,7 @@ int main(int argc, char** argv){
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
 
-    glDepthRangef(0, 1);
+    glDepthRangef(0,1);
 
     // Initialize Models
     map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
@@ -110,6 +111,15 @@ int main(int argc, char** argv){
 
     Carre2D menu;
 
+    // ---------------------------------------- CREATING SKYBOX
+
+    Carre3D back("BACK");
+    Carre3D front("FRONT");
+    Carre3D up("UP");
+    Carre3D down("DOWN");
+    Carre3D left("LEFT");
+    Carre3D right("RIGHT");
+
     // ---------------------------------------- SHADER MENU
     //Creating new shader
     Shader shader_menu(app + "shaders/text2D.vs.glsl", app + "shaders/text2D.fs.glsl");
@@ -139,14 +149,21 @@ int main(int argc, char** argv){
     map_textures["main_help"].reset(new HTexture(app + "assets/textures/menu/help_menu.png"));
     map_textures["back_help"].reset(new HTexture(app + "assets/textures/menu/help_menu_back.png"));
 
+    map_textures["BACK"].reset(new HTexture(app + "assets/textures/skybox/xneg.png"));
+    map_textures["FRONT"].reset(new HTexture(app + "assets/textures/skybox/xpos.png"));
+    map_textures["UP"].reset(new HTexture(app + "assets/textures/skybox/ypos.png"));
+    map_textures["DOWN"].reset(new HTexture(app + "assets/textures/skybox/yneg.png"));
+    map_textures["LEFT"].reset(new HTexture(app + "assets/textures/skybox/zpos.png"));
+    map_textures["RIGHT"].reset(new HTexture(app + "assets/textures/skybox/zneg.png"));
+
         // -------------------------------------------- //
         // ------------- LOOP OF THE MENU ------------- //
         // -------------------------------------------- //
 
     string page = "home";
     string action = "";
-    bool loop_game = false;
-    bool loop_menu = true;
+    bool loop_game = true;
+    bool loop_menu = false;
     GLuint displayedTexture;
     bool isSoundDisabled = false;
 
@@ -308,6 +325,14 @@ int main(int argc, char** argv){
         // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
 
         drawModels(models, shader_models);
+        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "model"), 1, GL_FALSE, glm::value_ptr(scale(mat4(),vec3(100.f,100.f,100.f))));
+        back.draw(id_texture,map_textures.at("BACK")->getTextureIndice());
+        front.draw(id_texture,map_textures.at("FRONT")->getTextureIndice());
+        up.draw(id_texture,map_textures.at("UP")->getTextureIndice());
+        down.draw(id_texture,map_textures.at("DOWN")->getTextureIndice());
+        left.draw(id_texture,map_textures.at("LEFT")->getTextureIndice());
+        right.draw(id_texture,map_textures.at("RIGHT")->getTextureIndice());
+
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();
 

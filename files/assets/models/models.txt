@@ -1,27 +1,6 @@
-# Template : 
-# one line : Model filepath
-# other lines : tx ty tz sx sy sz rx ry rz rdegré
-Model ./../../../files/assets/models/nanosuit/nanosuit.obj 
-7.0f -3.0f -20.0f 0.4f 0.4f 0.4f 0.f 90.f 0.f
-Model ./../../../files/assets/models/stormtrooper/Stormtrooper.obj 
-10.0f -3.0f -20.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-12.0f -3.0f -17.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-Model ./../../../files/assets/models/Scout_Trooper/Scout_Trooper.obj
-12.0f -3.0f -20.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-10.0f -3.0f -17.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-Model ./../../../files/assets/models/Habitat/Habitat.obj
-10.0f -31.f -12.0f 0.3f 0.3f 0.3f 0.f 0.f 0.f
-Model ./../../../files/assets/models/R2-D2/R2-D2.obj
-10.0f -3.0f -12.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-Model ./../../../files/assets/models/C-3PO_clean/C-3PO.obj
-12.0f -3.0f -9.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-Model ./../../../files/assets/models/Joda/Joda.obj
-10.0f -3.0f -9.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
 Model ./../../../files/assets/models/Landspeeder/Landspeeder.obj
 10.0f 5.0f 20.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
 10.0f 5.0f -20.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
 15.0f 5.0f -12.0f 0.9f 0.9f 0.9f 0.f 0.f 0.fv
 15.0f 5.0f 20.0f 0.9f 0.9f 0.9f 0.f 0.f 0.f
-Model ./../../../files/assets/models/Millennium_Falcon/Millennium_Falcon.obj
-15.0f 15.0f -20.0f 0.05f 0.05f 0.05f 0.f 0.f 0.f
 Fin
