@@ -18,6 +18,7 @@
 #include "engine/texture.hpp"
 #include "engine/menu.hpp"
 #include "engine/carre2D.hpp"
+#include "engine/carre3D.hpp"
 // --- Include of STD Extends --- //
 #include <map>
 
@@ -57,7 +58,7 @@ int main(int argc, char** argv){
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
 
-    glDepthRangef(0, 1);
+    glDepthRangef(0,1);
 
     // Initialize Models
     map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
@@ -81,30 +82,30 @@ int main(int argc, char** argv){
     //Initialize SDL_Mixer and SDL_Audio
     SDL_Init(SDL_INIT_AUDIO);
     InitAudio();
-    AdjustChannelVolume(-1, MIX_MAX_VOLUME/5);
+    AdjustChannelVolume(-1, MIX_MAX_VOLUME/2);
 
     //Vector to put sounds (music and chunk)
     vector<Mix_Music*> musicList;
     vector<Mix_Chunk*> chunkList;
 
-        // ------- GENERAL MUSIQUE ----- //
+    // ------- GENERAL MUSIQUE ----- //
 
     //Music for the Menu
-    musicList.push_back(LoadMusic((app + "assets/sounds/genesis.mp3").c_str()));
-    musicList.push_back(LoadMusic((app + "assets/sounds/bruit_menu.mp3").c_str()));
+    musicList.push_back(LoadMusic((app + "assets/sounds/sound_menu.mp3").c_str()));
+    musicList.push_back(LoadMusic((app + "assets/sounds/sound_game.wav").c_str()));
     PlayMusic(musicList[0], -1); // -1 to load at infinity
 
         // ------- CONTEXTUAL NOISE ----- //
 
     //Foot Steps
-    chunkList.push_back(LoadSound((app + "assets/sounds/footstep_1pas.ogg").c_str()));
-    chunkList.push_back(LoadSound((app + "assets/sounds/C3PO.wav").c_str()));
-    chunkList.push_back(LoadSound((app + "assets/sounds/R2D2.wav").c_str()));
-    chunkList.push_back(LoadSound((app + "assets/sounds/darksidious.wav").c_str()));
-    chunkList.push_back(LoadSound((app + "assets/sounds/misteryoda.wav").c_str()));
-
     Uint32 lastFootStep = 0;
     Uint32 limitBetweenFootStep = 600; // ms min between two foot step sound
+    chunkList.push_back(LoadSound((app + "assets/sounds/footstep_1pas.ogg").c_str())); // 0
+    chunkList.push_back(LoadSound((app + "assets/sounds/menu_chunk.wav").c_str()));    // 1
+    chunkList.push_back(LoadSound((app + "assets/sounds/darksidious.wav").c_str()));   // 2
+    chunkList.push_back(LoadSound((app + "assets/sounds/mister_yoda.wav").c_str()));   // 3
+    chunkList.push_back(LoadSound((app + "assets/sounds/R2D2.wav").c_str()));          // 4
+    chunkList.push_back(LoadSound((app + "assets/sounds/C3PO.wav").c_str()));          // 5
 
         // -------------------------------------------- //
         // ------------------ MENU -------------------- //
@@ -114,6 +115,15 @@ int main(int argc, char** argv){
     // ---------------------------------------- CREATING A SQUARE
 
     Carre2D menu;
+
+    // ---------------------------------------- CREATING SKYBOX
+
+    Carre3D back("BACK");
+    Carre3D front("FRONT");
+    Carre3D up("UP");
+    Carre3D down("DOWN");
+    Carre3D left("LEFT");
+    Carre3D right("RIGHT");
 
     // ---------------------------------------- SHADER MENU
     //Creating new shader
@@ -144,6 +154,13 @@ int main(int argc, char** argv){
     map_textures["main_help"].reset(new HTexture(app + "assets/textures/menu/help_menu.png"));
     map_textures["back_help"].reset(new HTexture(app + "assets/textures/menu/help_menu_back.png"));
 
+    map_textures["BACK"].reset(new HTexture(app + "assets/textures/skybox/xneg.png"));
+    map_textures["FRONT"].reset(new HTexture(app + "assets/textures/skybox/xpos.png"));
+    map_textures["UP"].reset(new HTexture(app + "assets/textures/skybox/ypos.png"));
+    map_textures["DOWN"].reset(new HTexture(app + "assets/textures/skybox/yneg.png"));
+    map_textures["LEFT"].reset(new HTexture(app + "assets/textures/skybox/zpos.png"));
+    map_textures["RIGHT"].reset(new HTexture(app + "assets/textures/skybox/zneg.png"));
+
         // -------------------------------------------- //
         // ------------- LOOP OF THE MENU ------------- //
         // -------------------------------------------- //
@@ -152,8 +169,9 @@ int main(int argc, char** argv){
     string action = "";
     bool loop_game = false;
     bool loop_menu = true;
+
     int scene = 0;
-    GLuint displayedTexture;
+    GLuint displayedTexture = 0;
     bool isSoundDisabled = false;
     glm::vec2 xzPorteScene1 = vec2(42.6, -21.8);
     glm::vec2 xzVaisseauScene1 = vec2(11.9, 0.0); 
@@ -207,6 +225,10 @@ int main(int argc, char** argv){
 
         if(mouse.hasJustClick && !windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT))
             mouse.hasJustClick = false;
+
+        if(displayedTexture != textureToDisplay(page,map_textures,mouse)){
+            PlaySound(chunkList[0]);
+        }
 
         displayedTexture = textureToDisplay(page,map_textures,mouse);
 
@@ -324,7 +346,7 @@ int main(int argc, char** argv){
             }
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzVaisseauScene1.x)*(camera.Position.x - xzVaisseauScene1.x)
                   + (camera.Position.z - xzVaisseauScene1.y)*(camera.Position.z - xzVaisseauScene1.y)) < 5.) ) {
-                if(windowManager.isKeyPressed(SDLK_BACKSPACE)){
+                if(windowManager.isKeyPressed(SDLK_RETURN)){
                     scene = 3;
                     models = modelsFromFile(app + FilePath("assets/models/models3.txt"));
                     camera.Position.x = 0.0f;
@@ -335,7 +357,7 @@ int main(int argc, char** argv){
             else if(scene == 2){
                 if( glm::sqrt((camera.Position.x - xzSidiousScene2.x)*(camera.Position.x - xzSidiousScene2.x)
                   + (camera.Position.z - xzSidiousScene2.y)*(camera.Position.z - xzSidiousScene2.y)) < 5. ){
-                    if(windowManager.isKeyPressed(SDLK_RETURN)){
+                    if(windowManager.isKeyPressed(SDLK_BACKSPACE)){
                         scene = 1;
                         models = modelsFromFile(app + FilePath("assets/models/models.txt"));
                         camera.Position.x = 0.0f;
@@ -344,7 +366,7 @@ int main(int argc, char** argv){
                     }
                 }
             }
-            else if( (scene == 3) && windowManager.isKeyPressed(SDLK_RETURN) ){
+            else if( (scene == 3) && windowManager.isKeyPressed(SDLK_BACKSPACE) ){
                     scene = 1;
                     models = modelsFromFile(app + FilePath("assets/models/models.txt"));
                     camera.Position.x = 0.0f;
@@ -355,8 +377,8 @@ int main(int argc, char** argv){
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzRobotsScene1.x)*(camera.Position.x - xzRobotsScene1.x)
                   + (camera.Position.z - xzRobotsScene1.y)*(camera.Position.z - xzRobotsScene1.y)) < 8.) ) {
                     if(RobotSound == true){
-                        PlaySound(chunkList[1]);
-                        PlaySound(chunkList[2]);
+                        PlaySound(chunkList[4]);
+                        PlaySound(chunkList[5]);
                         RobotSound = false;
                     }
                 }
@@ -364,15 +386,15 @@ int main(int argc, char** argv){
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzYodaScene1.x)*(camera.Position.x - xzYodaScene1.x)
                   + (camera.Position.z - xzYodaScene1.y)*(camera.Position.z - xzYodaScene1.y)) < 8.) ) {
                     if(YodaSound == true){
-                        PlaySound(chunkList[4]);
+                        PlaySound(chunkList[3]);
                         YodaSound = false;
                     }
                 }
 
             if( scene == 2 && (glm::sqrt((camera.Position.x - xzMortSidiousScene2.x)*(camera.Position.x - xzMortSidiousScene2.x)
-                  + (camera.Position.z - xzMortSidiousScene2.y)*(camera.Position.z - xzMortSidiousScene2.y)) < 7.) ) {
+                  + (camera.Position.z - xzMortSidiousScene2.y)*(camera.Position.z - xzMortSidiousScene2.y)) < 2.) ) {
                     if(MortSidiousSound == true){
-                        PlaySound(chunkList[3]);
+                        PlaySound(chunkList[2]);
                         MortSidiousSound = false;
                     }
                 }
@@ -391,6 +413,14 @@ int main(int argc, char** argv){
         // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
 
         drawModels(models, shader_models);
+        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "model"), 1, GL_FALSE, glm::value_ptr(scale(mat4(),vec3(100.f,100.f,100.f))));
+        back.draw(id_texture,map_textures.at("BACK")->getTextureIndice());
+        front.draw(id_texture,map_textures.at("FRONT")->getTextureIndice());
+        up.draw(id_texture,map_textures.at("UP")->getTextureIndice());
+        down.draw(id_texture,map_textures.at("DOWN")->getTextureIndice());
+        left.draw(id_texture,map_textures.at("LEFT")->getTextureIndice());
+        right.draw(id_texture,map_textures.at("RIGHT")->getTextureIndice());
+
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();
     }
