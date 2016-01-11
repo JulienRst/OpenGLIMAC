@@ -1,6 +1,7 @@
 #include "engine/texture.hpp"
 
 using namespace glimac;
+using namespace std;
 
 HTexture::HTexture(FilePath path){
     std::unique_ptr<Image> img = loadImage(path);
@@ -24,8 +25,7 @@ GLuint HTexture::getTextureIndice(){
     return texture;
 }
 
-GLuint textureToDisplay(FilePath page,std::map<std::string,unique_ptr<HTexture>> const &m,Mouse &mouse){
-
+GLuint textureToDisplay(FilePath page,std::map<std::string,std::unique_ptr<HTexture>> const &m,Mouse &mouse){
     if(page == "home")
         return textureOfHome(m,mouse);
     if(page == "sound")

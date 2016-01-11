@@ -8,27 +8,15 @@ using namespace glm;
 // Constructor, expects filepath and floats of matrices translate and scale
 Model::Model(std::string const& path, std::vector<float>& xyz){
     GLuint i;
-    std::cout << "size de xyz : " << xyz.size() << std::endl;
     for(i = 0; i < xyz.size(); i+=9){
-        for(int j = 0; j < 9; j++){
-        std::cout << "xyz[" << j << "] = " << xyz[j] << "  ";
-        }
-        std::cout << std::endl;
         glm::mat4 ViewTranslate = translate(glm::mat4(1.0f), vec3(xyz[i], xyz[i+1], xyz[i+2]));
-      //  modelmat = rotate(modelmat, xyz[i+9], vec3((int)xyz[i+6], (int)xyz[i+7], (int)xyz[i+8]));
-
+        //  modelmat = rotate(modelmat, xyz[i+9], vec3((int)xyz[i+6], (int)xyz[i+7], (int)xyz[i+8]));
         glm::mat4 ViewRotateX = glm::rotate(ViewTranslate, xyz[i+6], glm::vec3(1.f, 0.0f, 0.0f));
         glm::mat4 ViewRotateY = glm::rotate(ViewRotateX, xyz[i+7], glm::vec3(0.0f, 1.f, 0.0f));
         glm::mat4 View = glm::rotate(ViewRotateY, xyz[i+8], glm::vec3(0.0f, 0.0f, 1.f));
-        std::cout << ViewTranslate << std::endl;
         glm::mat4 scaled = scale(glm::mat4(1.0f), vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
-        std::cout << ViewRotateX << std::endl;
-        std::cout << ViewRotateY << std::endl;
-        std::cout << View << std::endl;
-        std::cout << scaled << std::endl;
         glm::mat4 modelmat = View * scaled;
 
-        std::cout << modelmat << std::endl;
         m_modelmatVector.push_back(modelmat);
     }
     this->loadModel(path);
@@ -79,10 +67,8 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
 
             lineStream >> stx; //The first "word" of the line goes into stx
             if(stx != "#"){
-                std::cout << "PAS UN COMMENTAIRE : STX = " << stx << " et ";
                 if(stx == "Model" || stx == "Fin"){
                     if(first_model_already_exists == true){
-                        std::cout << "MODEL DEJA : Creation de model" << std::endl;
 
                         //std::cout << "i = " << i << std::endl;
                         models[i].reset(new Model(path, xyz));
@@ -90,17 +76,14 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
                         ++i;
                     }
                     if(stx == "Model"){
-                     std::cout << "MODEL" << std::endl;
-                     lineStream >> path; } //Beginning of a new model
+                        lineStream >> path;
+                    } //Beginning of a new model
                 }
                 else{
-                    std::cout << "MATRICE" << std::endl;
-
                     lineStream >> sty >> stz >> ssx >> ssy >> ssz >> srx >> sry >> srz;
                     //on rentre les données de la ligne dans les différentes variables temporaires
                     //std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
                     std::vector<float> abc;
-                    std::cout << "abc : " << stx << sty << stz << ssx << ssy << ssz << srx << sry << srz << std::endl;
                     abc.push_back(stof(stx));
                     abc.push_back(stof(sty));
                     abc.push_back(stof(stz));
@@ -115,7 +98,6 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
                 }
                 first_model_already_exists = true; //permits to create a model with the xyz created when meeting the next path
             }
-            else{ std::cout << "UN COMMENTAIRE" << std::endl;}
         }
     myFile.close();
     //std::cout << "file closed" << std::endl;
@@ -136,7 +118,7 @@ void Model::loadModel(string path)
     if(!myFile.is_open()){
         std::cerr << "Erreur: Fichier modèle non trouvé" << std::endl;
     }
-    std::cout << "Ouverture réussie pour " << path << std::endl;
+    //std::cout << "Ouverture réussie pour " << path << std::endl;
 
     if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
     {

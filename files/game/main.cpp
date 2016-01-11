@@ -213,7 +213,7 @@ int main(int argc, char** argv){
     if(!isSoundDisabled)
         PlayMusic(musicList[1], -1); // -1 to load at infinity
     // Initialize Models
-    map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+    models = modelsFromFile(app + FilePath("assets/models/models.txt"));
 
         // -------------------------------------------- //
         // ------------- LOOP OF THE GAME ------------- //

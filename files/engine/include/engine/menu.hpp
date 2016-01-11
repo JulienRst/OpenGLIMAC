@@ -4,4 +4,4 @@
 
 #include "engine/mouse.hpp"
 
-string processMenuAction(std::string &page,Mouse &mouse);
+std::string processMenuAction(std::string &page,Mouse &mouse);
