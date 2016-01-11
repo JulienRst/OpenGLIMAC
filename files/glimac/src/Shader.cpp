@@ -7,14 +7,14 @@
 
 namespace glimac {
 
-bool Shader::compile() {
+bool GLShader::compile() {
 	glCompileShader(m_nGLId);
 	GLint status;
 	glGetShaderiv(m_nGLId, GL_COMPILE_STATUS, &status);
 	return status == GL_TRUE;
 }
 
-const std::string Shader::getInfoLog() const {
+const std::string GLShader::getInfoLog() const {
 	GLint length;
 	glGetShaderiv(m_nGLId, GL_INFO_LOG_LENGTH, &length);
 	char* log = new char[length];
@@ -24,7 +24,7 @@ const std::string Shader::getInfoLog() const {
 	return logString;
 }
 
-Shader loadShader(GLenum type, const FilePath& filepath) {
+GLShader loadGLShader(GLenum type, const FilePath& filepath) {
     std::ifstream input(filepath.c_str());
     if(!input) {
         throw std::runtime_error("Unable to load the file " + filepath.str());
@@ -33,10 +33,10 @@ Shader loadShader(GLenum type, const FilePath& filepath) {
     std::stringstream buffer;
     buffer << input.rdbuf();
     
-    Shader shader(type);
-    shader.setSource(buffer.str().c_str());
+    GLShader GLShader(type);
+    GLShader.setSource(buffer.str().c_str());
 
-    return shader;
+    return GLShader;
 }
 
 }

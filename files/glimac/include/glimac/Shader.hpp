@@ -8,20 +8,20 @@
 
 namespace glimac {
 
-class Shader {
+class GLShader {
 public:
-	Shader(GLenum type): m_nGLId(glCreateShader(type)) {
+	GLShader(GLenum type): m_nGLId(glCreateShader(type)) {
 	}
 
-	~Shader() {
+	~GLShader() {
 		glDeleteShader(m_nGLId);
 	}
 
-	Shader(Shader&& rvalue): m_nGLId(rvalue.m_nGLId) {
+	GLShader(GLShader&& rvalue): m_nGLId(rvalue.m_nGLId) {
 		rvalue.m_nGLId = 0;
 	}
 
-	Shader& operator =(Shader&& rvalue) {
+	GLShader& operator =(GLShader&& rvalue) {
 		m_nGLId = rvalue.m_nGLId;
 		rvalue.m_nGLId = 0;
 		return *this;
@@ -40,13 +40,13 @@ public:
 	const std::string getInfoLog() const;
 
 private:
-	Shader(const Shader&);
-	Shader& operator =(const Shader&);
+	GLShader(const GLShader&);
+	GLShader& operator =(const GLShader&);
 
 	GLuint m_nGLId;
 };
 
-// Load a shader (but does not compile it)
-Shader loadShader(GLenum type, const FilePath& filepath);
+// Load a GLShader (but does not compile it)
+GLShader loadGLShader(GLenum type, const FilePath& filepath);
 
 }

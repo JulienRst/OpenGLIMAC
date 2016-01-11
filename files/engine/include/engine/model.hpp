@@ -59,6 +59,5 @@ private:
 };
 
 GLint TextureFromFile(const std::string path, std::string directory);
-
 void drawModels(std::map<int, std::unique_ptr<Model> > const& models, Shader const& shader);
 std::map<int, std::unique_ptr<Model> > modelsFromFile(std::string const& filepath);

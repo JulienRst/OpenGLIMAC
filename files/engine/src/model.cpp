@@ -71,9 +71,9 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
          }
          int i = 0;
-         bool first_model_already_exists = false; 
+         bool first_model_already_exists = false;
          std::vector<float> xyz;
-        
+
         while(getline(myFile, line)){ //tant qu'il existe une ligne après celle-ci{
             istringstream lineStream(line); //on prend les données de la ligne suivante
 
@@ -88,8 +88,8 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
                         models[i].reset(new Model(path, xyz));
                         xyz.clear(); //xyz has to be clean again for the new model
                         ++i;
-                    }  
-                    if(stx == "Model"){ 
+                    }
+                    if(stx == "Model"){
                      std::cout << "MODEL" << std::endl;
                      lineStream >> path; } //Beginning of a new model
                 }
@@ -214,7 +214,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         for(GLuint j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
-    
+
     // Process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
     // We assume a convention for sampler names in the shaders. Each diffuse texture should be named
