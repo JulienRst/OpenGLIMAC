@@ -341,6 +341,7 @@ int main(int argc, char** argv){
                     camera.Position.x = 0.0f;
                     camera.Position.y = 0.0f;
                     camera.Position.z = 0.0f;
+                    MortSidiousSound = true;
                 }
             }
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzVaisseauScene1.x)*(camera.Position.x - xzVaisseauScene1.x)
@@ -362,15 +363,18 @@ int main(int argc, char** argv){
                         camera.Position.x = 0.0f;
                         camera.Position.y = 0.0f;
                         camera.Position.z = 0.0f;
+                        MortSidiousSound = true;
                     }
                 }
             }
             else if( (scene == 3) && windowManager.isKeyPressed(SDLK_BACKSPACE) ){
-                    scene = 1;
-                    models = modelsFromFile(app + FilePath("assets/models/models.txt"));
-                    camera.Position.x = 0.0f;
-                    camera.Position.y = 0.0f;
-                    camera.Position.z = 0.0f;
+                scene = 1;
+                models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+                camera.Position.x = 0.0f;
+                camera.Position.y = 0.0f;
+                camera.Position.z = 0.0f;
+                RobotSound = true;
+                YodaSound = true;
             }
 
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzRobotsScene1.x)*(camera.Position.x - xzRobotsScene1.x)
@@ -384,14 +388,14 @@ int main(int argc, char** argv){
 
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzYodaScene1.x)*(camera.Position.x - xzYodaScene1.x)
                   + (camera.Position.z - xzYodaScene1.y)*(camera.Position.z - xzYodaScene1.y)) < 8.) ) {
-                    if(YodaSound == true){
+                    if(YodaSound){
                         PlaySound(chunkList[3]);
                         YodaSound = false;
                     }
                 }
 
             if( scene == 2 && (glm::sqrt((camera.Position.x - xzMortSidiousScene2.x)*(camera.Position.x - xzMortSidiousScene2.x)
-                  + (camera.Position.z - xzMortSidiousScene2.y)*(camera.Position.z - xzMortSidiousScene2.y)) < 2.) ) {
+                  + (camera.Position.z - xzMortSidiousScene2.y)*(camera.Position.z - xzMortSidiousScene2.y)) < 5.) ) {
                     if(MortSidiousSound == true){
                         PlaySound(chunkList[2]);
                         MortSidiousSound = false;
@@ -405,7 +409,7 @@ int main(int argc, char** argv){
         // ---------------------------- GET THE VIEW MATRIX FROM CAMERA
         viewMatrix = camera.GetViewMatrix();
         // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
-        glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 300.0f);
         glUniformMatrix4fv( glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection) );
         glUniformMatrix4fv( glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix) );
 
