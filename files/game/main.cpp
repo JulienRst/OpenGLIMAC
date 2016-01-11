@@ -82,25 +82,29 @@ int main(int argc, char** argv){
     //Initialize SDL_Mixer and SDL_Audio
     SDL_Init(SDL_INIT_AUDIO);
     InitAudio();
-    AdjustChannelVolume(-1, MIX_MAX_VOLUME/5);
+    AdjustChannelVolume(-1, MIX_MAX_VOLUME/2);
 
     //Vector to put sounds (music and chunk)
     vector<Mix_Music*> musicList;
     vector<Mix_Chunk*> chunkList;
 
-        // ------- GENERAL MUSIQUE ----- //
+    // ------- GENERAL MUSIQUE ----- //
 
     //Music for the Menu
-    musicList.push_back(LoadMusic((app + "assets/sounds/genesis.mp3").c_str()));
-    musicList.push_back(LoadMusic((app + "assets/sounds/bruit_menu.mp3").c_str()));
+    musicList.push_back(LoadMusic((app + "assets/sounds/sound_menu.mp3").c_str()));
+    musicList.push_back(LoadMusic((app + "assets/sounds/sound_game.wav").c_str()));
     PlayMusic(musicList[0], -1); // -1 to load at infinity
 
         // ------- CONTEXTUAL NOISE ----- //
 
     //Foot Steps
-    chunkList.push_back(LoadSound((app + "assets/sounds/footstep_1pas.ogg").c_str()));
     Uint32 lastFootStep = 0;
     Uint32 limitBetweenFootStep = 600; // ms min between two foot step sound
+    chunkList.push_back(LoadSound((app + "assets/sounds/footstep_1pas.ogg").c_str())); // 0
+    chunkList.push_back(LoadSound((app + "assets/sounds/menu_chunk.wav").c_str()));    // 1
+    chunkList.push_back(LoadSound((app + "assets/sounds/darksidious.wav").c_str()));   // 2
+    chunkList.push_back(LoadSound((app + "assets/sounds/mister_yoda.wav").c_str()));   // 3
+    chunkList.push_back(LoadSound((app + "assets/sounds/R2D2.wav").c_str()));          // 4
 
         // -------------------------------------------- //
         // ------------------ MENU -------------------- //
@@ -162,9 +166,9 @@ int main(int argc, char** argv){
 
     string page = "home";
     string action = "";
-    bool loop_game = true;
-    bool loop_menu = false;
-    GLuint displayedTexture;
+    bool loop_game = false;
+    bool loop_menu = true;
+    GLuint displayedTexture = 0;
     bool isSoundDisabled = false;
 
     while(loop_menu){
@@ -210,6 +214,10 @@ int main(int argc, char** argv){
 
         if(mouse.hasJustClick && !windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT))
             mouse.hasJustClick = false;
+
+        if(displayedTexture != textureToDisplay(page,map_textures,mouse)){
+            PlaySound(chunkList[0]);
+        }
 
         displayedTexture = textureToDisplay(page,map_textures,mouse);
 
