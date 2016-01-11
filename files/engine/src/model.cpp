@@ -8,10 +8,27 @@ using namespace glm;
 // Constructor, expects filepath and floats of matrices translate and scale
 Model::Model(std::string const& path, std::vector<float>& xyz){
     GLuint i;
-    for(i = 0; i < xyz.size(); i+=6){
-        glm::mat4 modelmat;
-        modelmat = translate(modelmat, vec3(xyz[i], xyz[i+1], xyz[i+2]));
-        modelmat = scale(modelmat, vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
+    std::cout << "size de xyz : " << xyz.size() << std::endl;
+    for(i = 0; i < xyz.size(); i+=9){
+        for(int j = 0; j < 9; j++){
+        std::cout << "xyz[" << j << "] = " << xyz[j] << "  ";
+        }
+        std::cout << std::endl;
+        glm::mat4 ViewTranslate = translate(glm::mat4(1.0f), vec3(xyz[i], xyz[i+1], xyz[i+2]));
+      //  modelmat = rotate(modelmat, xyz[i+9], vec3((int)xyz[i+6], (int)xyz[i+7], (int)xyz[i+8]));
+
+        glm::mat4 ViewRotateX = glm::rotate(ViewTranslate, xyz[i+6], glm::vec3(1.f, 0.0f, 0.0f));
+        glm::mat4 ViewRotateY = glm::rotate(ViewRotateX, xyz[i+7], glm::vec3(0.0f, 1.f, 0.0f));
+        glm::mat4 View = glm::rotate(ViewRotateY, xyz[i+8], glm::vec3(0.0f, 0.0f, 1.f));
+        std::cout << ViewTranslate << std::endl;
+        glm::mat4 scaled = scale(glm::mat4(1.0f), vec3(xyz[i+3], xyz[i+4], xyz[i+5]));
+        std::cout << ViewRotateX << std::endl;
+        std::cout << ViewRotateY << std::endl;
+        std::cout << View << std::endl;
+        std::cout << scaled << std::endl;
+        glm::mat4 modelmat = View * scaled;
+
+        std::cout << modelmat << std::endl;
         m_modelmatVector.push_back(modelmat);
     }
     this->loadModel(path);
@@ -48,7 +65,7 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
     myFile.open(filepath); //ouverture du fichier où sont contenus toutes les infos des modeles (une ligne, un model)
     std::map<int, std::unique_ptr<Model> > models;
         string path, line; //path est une variable temporaire
-        string stx, sty, stz, ssx, ssy, ssz;
+        string stx, sty, stz, ssx, ssy, ssz, srx, sry, srz;
 
          if (!myFile.is_open()){
              std::cerr << "Erreur lors de l'ouverture du fichier: " << strerror(errno) << std::endl;
@@ -61,44 +78,44 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
             istringstream lineStream(line); //on prend les données de la ligne suivante
 
             lineStream >> stx; //The first "word" of the line goes into stx
+            if(stx != "#"){
+                std::cout << "PAS UN COMMENTAIRE : STX = " << stx << " et ";
+                if(stx == "Model" || stx == "Fin"){
+                    if(first_model_already_exists == true){
+                        std::cout << "MODEL DEJA : Creation de model" << std::endl;
 
-            if(stx == "Model" || stx == "Fin"){
-                if(first_model_already_exists == true){
-                    //std::cout << "i = " << i << std::endl;
-                    models[i].reset(new Model(path, xyz));
-                    //test display
-                    // if(models[i] != NULL){ std::cout << "Création de unique_ptr de model " << path << std::endl; }
-                    // else{ std::cout << "ERREUR MODEL[i] !!" << std::endl;}
-                    // if(i == 0){
-                    // std::cout << i << models[i]->getModelMatrix(0) << std::endl << models[i]->getModelMatrix(1)  << std::endl << models[i]->getModelMatrix(2) << std::endl;
-                    // }
-                    // if(i == 1){
-                    //std::cout << i << models[i]->getModelMatrix(0) << std::endl << models[i]->getModelMatrix(1)  << std::endl << models[i]->getModelMatrix(2) << std::endl << models[i]->getModelMatrix(3) << std::endl;
-                    //end test display
-                    //}
-                    xyz.clear(); //xyz has to be clean again for the new model
-                    ++i;
-                }  
-                if(stx == "Model"){ lineStream >> path; } //Beginning of a new model
+                        //std::cout << "i = " << i << std::endl;
+                        models[i].reset(new Model(path, xyz));
+                        xyz.clear(); //xyz has to be clean again for the new model
+                        ++i;
+                    }  
+                    if(stx == "Model"){ 
+                     std::cout << "MODEL" << std::endl;
+                     lineStream >> path; } //Beginning of a new model
+                }
+                else{
+                    std::cout << "MATRICE" << std::endl;
+
+                    lineStream >> sty >> stz >> ssx >> ssy >> ssz >> srx >> sry >> srz;
+                    //on rentre les données de la ligne dans les différentes variables temporaires
+                    //std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
+                    std::vector<float> abc;
+                    std::cout << "abc : " << stx << sty << stz << ssx << ssy << ssz << srx << sry << srz << std::endl;
+                    abc.push_back(stof(stx));
+                    abc.push_back(stof(sty));
+                    abc.push_back(stof(stz));
+                    abc.push_back(stof(ssx));
+                    abc.push_back(stof(ssy));
+                    abc.push_back(stof(ssz));
+                    abc.push_back(stof(srx));
+                    abc.push_back(stof(sry));
+                    abc.push_back(stof(srz));
+
+                    xyz.insert(xyz.end(), abc.begin(), abc.end() );
+                }
+                first_model_already_exists = true; //permits to create a model with the xyz created when meeting the next path
             }
-            else{
-                lineStream >> sty >> stz >> ssx >> ssy >> ssz;
-                //on rentre les données de la ligne dans les différentes variables temporaires
-                //std::cout << "i : " << path << stx << sty << stz << ssx << ssy << ssz << std::endl;
-                std::vector<float> abc;
-                abc.push_back(stof(stx));
-                abc.push_back(stof(sty));
-                abc.push_back(stof(stz));
-                abc.push_back(stof(ssx));
-                abc.push_back(stof(ssy));
-                abc.push_back(stof(ssz));
-                xyz.insert(xyz.end(), abc.begin(), abc.end() );
-                // for(unsigned int b = 0; b < xyz.size(); ++b){
-                //   std::cout << xyz[b] << " ";
-                // }
-                //  std::cout << std::endl;
-            }
-            first_model_already_exists = true; //permits to create a model with the xyz created when meeting the next path
+            else{ std::cout << "UN COMMENTAIRE" << std::endl;}
         }
     myFile.close();
     //std::cout << "file closed" << std::endl;
@@ -128,7 +145,6 @@ void Model::loadModel(string path)
     }
     // Retrieve the directory path of the filepath
     this->directory = path.substr(0, path.find_last_of('/'));
-        std::cout << "directory du model " << path.substr(0, path.find_last_of('/')) << std::endl;
 
     // Process ASSIMP's root node recursively
     this->processNode(scene->mRootNode, scene);
@@ -137,16 +153,13 @@ void Model::loadModel(string path)
 // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
-    std::cout << "nombre de mesh : " << node->mNumMeshes << std::endl;
     // Process each mesh located at the current node
     for(GLuint i = 0; i < node->mNumMeshes; i++)
     {
         // The node object only contains indices to index the actual objects in the scene.
         // The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        std::cout << "Préparation du Process de Mesh numéro : " << i << std::endl;
         this->meshes.push_back(this->processMesh(mesh, scene));
-        std::cout << "Réussite du Process de Mesh numéro : " << i << std::endl;
     }
     // After we've processed all of the meshes (if any) we then recursively process each of the children nodes
     for(GLuint i = 0; i < node->mNumChildren; i++)
@@ -178,9 +191,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         vector.y = mesh->mNormals[i].y;
         vector.z = mesh->mNormals[i].z;
         vertex.Normal = vector;
-
-        std::cout << "mVertices[" << i << "] xyz : " << mesh->mVertices[i].x << " " << mesh->mVertices[i].y << " "  << mesh->mVertices[i].z << " "  << std::endl;
-        std::cout << "mNormals[" << i << "] xyz : " << mesh->mVertices[i].x << " " << mesh->mVertices[i].y << " "  << mesh->mVertices[i].z << " "  << std::endl;
 
         // Texture Coordinates
         if(mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates?

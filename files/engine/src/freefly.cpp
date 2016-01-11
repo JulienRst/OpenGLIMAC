@@ -5,17 +5,17 @@ glm::mat4 Camera::GetViewMatrix(){
 }
 
 void Camera::MoveFront(float t){
-    float x=1;
+    float x=5;
     if(isShiftPressed)
-        x=2;
+        x=10;
 
     this->Position.z += t * x * this->Front.z;
     this->Position.x += t * x * this->Front.x;
 }
 void Camera::MoveRight(float t){
-    float x=1;
+    float x=5;
     if(isShiftPressed)
-        x=2;
+        x=10;
     this->Position.x += t * x * this->Right.x;
     this->Position.z += t * x * this->Right.z;
 }
@@ -63,7 +63,7 @@ void Camera::launchJump(){
 void Camera::ProcessJump(){
     if(isInJump){
         this->Position.y = - (jump * jump) + 4;
-        this->jump += 0.01;
+        this->jump += 0.04;
         if(jump >= 2){
             this->Position.y = 0.0f;
             isInJump = false;
