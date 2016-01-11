@@ -297,7 +297,9 @@ int main(int argc, char** argv){
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS(
+
+        // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
+
         drawModels(models, shader_models);
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();

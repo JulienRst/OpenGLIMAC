@@ -32,8 +32,7 @@ include_directories(third-party/assimp/include)
 set(ENABLE_BOOST_WORKAROUND ON CACHE BOOL "")
 add_subdirectory(third-party/assimp)
 
-include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} engine/
-${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_IMAGE_INCLUDE_DIRS} engine/include glimac/include third-party/include)
+include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} ${ASSIMP_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIRS} ${SDL_IMAGE_INCLUDE_DIRS} engine/include glimac/include third-party/include)
 
 set(ALL_LIBRARIES engine glimac assimp ${SDL_LIBRARY} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_IMAGE_LIBRARY})
 
