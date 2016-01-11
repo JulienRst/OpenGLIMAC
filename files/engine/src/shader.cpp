@@ -87,3 +87,36 @@ Shader::Shader(const FilePath vertexPath, const FilePath fragmentPath)
 void Shader::Use() {
      glUseProgram(this->Program);
 }
+
+bool Shader::compile() {
+    glCompileShader(Program);
+    GLint status;
+    glGetShaderiv(Program, GL_COMPILE_STATUS, &status);
+    return status == GL_TRUE;
+}
+
+const std::string Shader::getInfoLog() const {
+    GLint length;
+    glGetShaderiv(Program, GL_INFO_LOG_LENGTH, &length);
+    char* log = new char[length];
+    glGetShaderInfoLog(Program, length, 0, log);
+    std::string logString(log);
+    delete [] log;
+    return logString;
+}
+
+Shader loadShader(GLenum type, const FilePath& filepath) {
+    std::ifstream input(filepath.c_str());
+    if(!input) {
+        std::cout << "Unable to load the file " << filepath.str() << std::endl;
+    }
+    
+    std::stringstream buffer;
+    buffer << input.rdbuf();
+    
+    Shader shader(type);
+    shader.setSource(buffer.str().c_str());
+
+    return shader;
+
+}

@@ -39,7 +39,7 @@ public:
     // Constructor, expects a filepath to a 3D model.
     Model(string const& path, float tx, float ty, float tz, float sx, float sy, float sz);
     // Draws the model, and thus all its meshes
-    void Draw(Shader shader);
+    void Draw(Shader const& shader);
 
     glm::mat4 getModelMatrix();
 
@@ -64,5 +64,5 @@ private:
 };
 
 
-void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader);
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader);
 map<int, unique_ptr<Model> > modelsFromFile(string const& filepath);

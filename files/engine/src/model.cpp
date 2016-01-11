@@ -14,7 +14,7 @@ Model::Model(string const& path, float tx, float ty, float tz, float sx, float s
 }
 
 // Draws the model, and thus all its meshes
-void Model::Draw(Shader shader)
+void Model::Draw(Shader const& shader)
 {
     for(GLuint i = 0; i < this->meshes.size(); i++){
         this->meshes[i].Draw(shader);
@@ -49,10 +49,11 @@ map<int, unique_ptr<Model> > modelsFromFile(string const& filepath){
 }
 
 //Create the models with the path, translate and scale matrix
-void drawModels(map<int, unique_ptr<Model> > const& models, Shader shader){
+void drawModels(map<int, unique_ptr<Model> > const& models, Shader const& shader){
         //Load a list of ModelMatrix from a text file
         GLuint i;
         for(i = 0; i < models.size(); i++){
+            // ---------------------------- TRANSFORM THE MATRIX AND SEND THEM
             glm::mat4 model;
             model = models.at(i)->getModelMatrix();
             glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));

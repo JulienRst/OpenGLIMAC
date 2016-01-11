@@ -13,7 +13,7 @@
     }
 
     // Render the mesh
-    void Mesh::Draw(Shader shader)
+    void Mesh::Draw(Shader const& shader)
     {
         // Bind appropriate textures
         GLuint diffuseNr = 1;
