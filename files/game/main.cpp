@@ -98,6 +98,11 @@ int main(int argc, char** argv){
 
     //Foot Steps
     chunkList.push_back(LoadSound((app + "assets/sounds/footstep_1pas.ogg").c_str()));
+    chunkList.push_back(LoadSound((app + "assets/sounds/C3PO.wav").c_str()));
+    chunkList.push_back(LoadSound((app + "assets/sounds/R2D2.wav").c_str()));
+    chunkList.push_back(LoadSound((app + "assets/sounds/darksidious.wav").c_str()));
+    chunkList.push_back(LoadSound((app + "assets/sounds/misteryoda.wav").c_str()));
+
     Uint32 lastFootStep = 0;
     Uint32 limitBetweenFootStep = 600; // ms min between two foot step sound
 
@@ -147,8 +152,21 @@ int main(int argc, char** argv){
     string action = "";
     bool loop_game = false;
     bool loop_menu = true;
+    int scene = 0;
     GLuint displayedTexture;
     bool isSoundDisabled = false;
+    glm::vec2 xzPorteScene1 = vec2(42.6, -21.8);
+    glm::vec2 xzVaisseauScene1 = vec2(11.9, 0.0); 
+    glm::vec2 xzSidiousScene2 = vec2(0.0, -15.0);
+
+
+    glm::vec2 xzRobotsScene1 = vec2(30.7, 11.);
+    glm::vec2 xzYodaScene1 = vec2(-8.5, 59.7); 
+    glm::vec2 xzMortSidiousScene2 = vec2(0.0, -15.0);
+
+    bool RobotSound = true;
+    bool YodaSound = true;
+    bool MortSidiousSound = true;
 
     while(loop_menu){
         // ---------------------------- CHECK IF SDL QUIT
@@ -158,11 +176,6 @@ int main(int argc, char** argv){
                 loop_menu = false;
                 loop_game = false;
             }
-        }
-        // ---------------------------- PROCESS MENU::PLAY
-        if(windowManager.isKeyPressed(SDLK_RETURN)){
-            loop_menu = false;
-            loop_game = true;
         }
 
         // ---------------------------- PROCESS MOUSE
@@ -181,6 +194,7 @@ int main(int argc, char** argv){
         } else if(action == "play"){
             loop_menu = false;
             loop_game = true;
+            scene = 1;
         } else if(action == "pauseSound"){
             StopMusic();
             Mix_RewindMusic();
@@ -212,8 +226,13 @@ int main(int argc, char** argv){
     // Change the main music for the game
     if(!isSoundDisabled)
         PlayMusic(musicList[1], -1); // -1 to load at infinity
+
+
+
     // Initialize Models
-    models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+    if(scene == 1){  models = modelsFromFile(app + FilePath("assets/models/models.txt")); }
+    else if(scene == 2){ models = modelsFromFile(app + FilePath("assets/models/models.txt")); }
+        else if(scene == 3){ models = modelsFromFile(app + FilePath("assets/models/models.txt"));  }
 
         // -------------------------------------------- //
         // ------------- LOOP OF THE GAME ------------- //
@@ -289,10 +308,74 @@ int main(int argc, char** argv){
             limitBetweenFootStep = 600;
             camera.isShiftPressed = false;
         }
+
+         std::cout << scene << "Caméra " << camera.Position.x << ":" << camera.Position.z << " yoda : "<< YodaSound << " C3PO : " << RobotSound << std::endl;
         // ----------------------------- ENTER : Go to next level : TODO : REMOVE IT !!
-        if(windowManager.isKeyPressed(SDLK_RETURN)){
-            models = modelsFromFile(app + FilePath("assets/models/models2.txt"));
-        }
+            if( scene == 1 && (glm::sqrt((camera.Position.x - xzPorteScene1.x)*(camera.Position.x - xzPorteScene1.x)
+                  + (camera.Position.z - xzPorteScene1.y)*(camera.Position.z - xzPorteScene1.y)) < 5.) ) {
+
+                if(windowManager.isKeyPressed(SDLK_RETURN)){
+                    scene = 2;
+                    models = modelsFromFile(app + FilePath("assets/models/models2.txt"));
+                    camera.Position.x = 0.0f;
+                    camera.Position.y = 0.0f;
+                    camera.Position.z = 0.0f;
+                }
+            }
+            if( scene == 1 && (glm::sqrt((camera.Position.x - xzVaisseauScene1.x)*(camera.Position.x - xzVaisseauScene1.x)
+                  + (camera.Position.z - xzVaisseauScene1.y)*(camera.Position.z - xzVaisseauScene1.y)) < 5.) ) {
+                if(windowManager.isKeyPressed(SDLK_BACKSPACE)){
+                    scene = 3;
+                    models = modelsFromFile(app + FilePath("assets/models/models3.txt"));
+                    camera.Position.x = 0.0f;
+                    camera.Position.y = 0.0f;
+                    camera.Position.z = 0.0f;
+                }
+            }
+            else if(scene == 2){
+                if( glm::sqrt((camera.Position.x - xzSidiousScene2.x)*(camera.Position.x - xzSidiousScene2.x)
+                  + (camera.Position.z - xzSidiousScene2.y)*(camera.Position.z - xzSidiousScene2.y)) < 5. ){
+                    if(windowManager.isKeyPressed(SDLK_RETURN)){
+                        scene = 1;
+                        models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+                        camera.Position.x = 0.0f;
+                        camera.Position.y = 0.0f;
+                        camera.Position.z = 0.0f;
+                    }
+                }
+            }
+            else if( (scene == 3) && windowManager.isKeyPressed(SDLK_RETURN) ){
+                    scene = 1;
+                    models = modelsFromFile(app + FilePath("assets/models/models.txt"));
+                    camera.Position.x = 0.0f;
+                    camera.Position.y = 0.0f;
+                    camera.Position.z = 0.0f;
+            }
+
+            if( scene == 1 && (glm::sqrt((camera.Position.x - xzRobotsScene1.x)*(camera.Position.x - xzRobotsScene1.x)
+                  + (camera.Position.z - xzRobotsScene1.y)*(camera.Position.z - xzRobotsScene1.y)) < 8.) ) {
+                    if(RobotSound == true){
+                        PlaySound(chunkList[1]);
+                        PlaySound(chunkList[2]);
+                        RobotSound = false;
+                    }
+                }
+
+            if( scene == 1 && (glm::sqrt((camera.Position.x - xzYodaScene1.x)*(camera.Position.x - xzYodaScene1.x)
+                  + (camera.Position.z - xzYodaScene1.y)*(camera.Position.z - xzYodaScene1.y)) < 8.) ) {
+                    if(YodaSound == true){
+                        PlaySound(chunkList[4]);
+                        YodaSound = false;
+                    }
+                }
+
+            if( scene == 2 && (glm::sqrt((camera.Position.x - xzMortSidiousScene2.x)*(camera.Position.x - xzMortSidiousScene2.x)
+                  + (camera.Position.z - xzMortSidiousScene2.y)*(camera.Position.z - xzMortSidiousScene2.y)) < 7.) ) {
+                    if(MortSidiousSound == true){
+                        PlaySound(chunkList[3]);
+                        MortSidiousSound = false;
+                    }
+                }
 
         // ---------------------------------------------
         // --------------------------------- SEND MATRIX
@@ -302,15 +385,14 @@ int main(int argc, char** argv){
         viewMatrix = camera.GetViewMatrix();
         // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
         glm::mat4 projection = glm::perspective(70.0f, (float)screenWidth/(float)screenHeight, 0.1f, 100.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv( glGetUniformLocation(shader_models.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection) );
+        glUniformMatrix4fv( glGetUniformLocation(shader_models.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix) );
 
         // ---------------------------- CALLING THE DRAW METHOD OF ALL THE MODELS
 
         drawModels(models, shader_models);
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();
-
     }
         // --------------------------------------------- //
         // ---------- FREE AND LEAVE PROPERLY ---------- //
@@ -324,4 +406,5 @@ int main(int argc, char** argv){
     std::cout << "EXIT_SUCCESS" << std::endl;
 
     return EXIT_SUCCESS;
+
 }
