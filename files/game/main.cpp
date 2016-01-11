@@ -17,6 +17,7 @@
 #include "engine/music.hpp"
 #include "engine/texture.hpp"
 #include "engine/menu.hpp"
+#include "engine/carre2D.hpp"
 // --- Include of STD Extends --- //
 #include <map>
 
@@ -26,28 +27,6 @@
 using namespace glm;
 using namespace std;
 using namespace glimac;
-
-
-// -------- STRUCTURES --------------//
-
-struct Vertex2DUV{
-    glm::vec2 position;
-    glm::vec2 textpos;
-
-    Vertex2DUV(){
-        position = glm::vec2(0,0);
-        textpos = glm::vec2(0,0);
-    }
-
-    Vertex2DUV(glm::vec2 p, glm::vec2 t){
-        position = p;
-        textpos = t;
-    }
-};
-
-mat3 scale(float sx, float sy){
-	return mat3(vec3(sx,0.f,0.f),vec3(0.f,sy,0.f),vec3(0.f,0.f,1.f));
-}
 
 // -------- MAIN PROGRAM -------------- //
 
@@ -108,21 +87,6 @@ int main(int argc, char** argv){
     musicList.push_back(LoadMusic((app + "assets/sounds/bruit_menu.mp3").c_str()));
     PlayMusic(musicList[0], -1); // -1 to load at infinity
 
-    /* --- TODO : use :
-        if(windowManager.isKeyPressed(SDLK_#)){
-            StopMusic(); //Met la musique en pause
-        }
-        if(windowManager.isKeyPressed(SDLK_#)){
-            ResumeMusic(); //Relance la musique de là où elle s'est arrêté
-        }
-        if(windowManager.isKeyPressed(SDLK_#)){
-            Mix_RewindMusic(); //Revient au début de la musique
-        }
-        if(windowManager.isKeyPressed(SDLK_#)){
-            Mix_HaltMusic(); //Arrête la musique
-        }
-    --- */
-
         // ------- CONTEXTUAL NOISE ----- //
 
     //Foot Steps
@@ -134,10 +98,12 @@ int main(int argc, char** argv){
         // ------------------ MENU -------------------- //
         // -------------------------------------------- //
 
-    // ----------------------------------------------------------
-    // ---------------------------------------- CREATING A SQUARE
-    // ----------------------------------------------------------
 
+    // ---------------------------------------- CREATING A SQUARE
+
+    Carre2D menu;
+
+    // ---------------------------------------- SHADER MENU
     //Creating new shader
     Shader shader_menu(app + "shaders/text2D.vs.glsl", app + "shaders/text2D.fs.glsl");
     shader_menu.Use();
@@ -145,50 +111,7 @@ int main(int argc, char** argv){
     GLint id = glGetUniformLocation(shader_menu.Program,"uModelMatrix");
 	GLint id_texture = glGetUniformLocation(shader_menu.Program,"uTexture");
 
-        //--------- VBO ----------//
-    //Create a VBO
-    GLuint vbo;
-    glGenBuffers(1,&vbo);
-    //Binding VBO on GL_ARRAY_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    //On crée un tableau de GLfloat contenant les coordonnées
-    Vertex2DUV vertices[] =  {
-        Vertex2DUV(glm::vec2(-1., 1.),glm::vec2(0.f, 0.f)),
-        Vertex2DUV(glm::vec2(1., 1.),glm::vec2(1.f, 0.f)),
-        Vertex2DUV(glm::vec2(1., -1.),glm::vec2(1., 1.f)),
-        Vertex2DUV(glm::vec2(-1., 1.),glm::vec2(0.f, 0.f)),
-        Vertex2DUV(glm::vec2(1., -1.),glm::vec2(1.f, 1.f)),
-        Vertex2DUV(glm::vec2(-1., -1.),glm::vec2(0., 1.f))
-    };
-    //On envoie les données au buffer GL_ARRAY_BUFFER (que l'on a bindé précédement)
-    glBufferData(GL_ARRAY_BUFFER,6 * sizeof(Vertex2DUV), vertices, GL_STATIC_DRAW);
-    //Après avoir modifier le buffer on peut le débinder pour éviter de le modifier inutilement
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-
-        //--------- VAO ----------//
-    //Création d'un VAO
-    GLuint vao; //Déclaration
-    glGenVertexArrays(1,&vao); //Affectation d'un identifiant
-    //On va binder le VAO a sa cible (unique donc pas de précision)
-    glBindVertexArray(vao);
-        //On active l'attribut position & texture position
-        const GLuint VERTEX_ATTR_POSITION = 0;
-        const GLuint VERTEX_ATTR_TEXTPOSITION = 1;
-        glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
-        glEnableVertexAttribArray(VERTEX_ATTR_TEXTPOSITION);
-        //Bind VBO on GL_ARRAY_BUFFER
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-            //Specify to VBO how to treat every VAO he found
-            glVertexAttribPointer(VERTEX_ATTR_POSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, position));
-            glVertexAttribPointer(VERTEX_ATTR_TEXTPOSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, textpos));
-        //On debind le VBO
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        //On debind le VAO
-    glBindVertexArray(0);
-
-    // ----------------------------------------------------------
     // ------------------------------------ CREATING THE TEXTURES
-    // ----------------------------------------------------------
 
     map<string,unique_ptr<HTexture>> map_textures;
     map_textures["main_menu"].reset(new HTexture(app + "assets/textures/menu/main_menu.png"));
@@ -218,6 +141,7 @@ int main(int argc, char** argv){
     bool loop_game = false;
     bool loop_menu = true;
     GLuint displayedTexture;
+    bool isSoundDisabled = false;
 
     while(loop_menu){
         // ---------------------------- CHECK IF SDL QUIT
@@ -253,10 +177,11 @@ int main(int argc, char** argv){
         } else if(action == "pauseSound"){
             StopMusic();
             Mix_RewindMusic();
+            isSoundDisabled = true;
         } else if(action == "playSound"){
             ResumeMusic();
+            isSoundDisabled = false;
         }
-
         action = "";
 
         if(mouse.hasJustClick && !windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT))
@@ -264,35 +189,22 @@ int main(int argc, char** argv){
 
         displayedTexture = textureToDisplay(page,map_textures,mouse);
 
-
         // ---------------------------- GL CLEAR
         glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // ---------------------------- LAUNCH OF SHADDER
         shader_menu.Use();
 
-            // ---------------------------------------------
-            // -------------------------- DRAW + SEND MATRIX
-            // ---------------------------------------------
-
-        glBindVertexArray(vao);
-            glBindTexture(GL_TEXTURE_2D,displayedTexture);
-                glUniform1i(id_texture,0);
-                glUniformMatrix3fv(id,1,GL_FALSE,glm::value_ptr(glm::mat3()));
-                glDrawArrays(GL_TRIANGLES,0,6);
-            glBindTexture(GL_TEXTURE_2D,0);
-        glBindVertexArray(0);
+        // ---------------------------- DRAW + SEND MATRIX
+        menu.draw(id,id_texture,displayedTexture);
 
         // ---------------------------- SWAP THE BUFFERS
         windowManager.swapBuffers();
     }
 
-    glDeleteBuffers(1,&vbo);
-    glDeleteVertexArrays(1,&vao);
-
     // Change the main music for the game
-
-    PlayMusic(musicList[1], -1); // -1 to load at infinity
+    if(!isSoundDisabled)
+        PlayMusic(musicList[1], -1); // -1 to load at infinity
     // Initialize Models
     map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
 
