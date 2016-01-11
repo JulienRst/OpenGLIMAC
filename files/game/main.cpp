@@ -82,7 +82,7 @@ int main(int argc, char** argv){
     //Initialize SDL_Mixer and SDL_Audio
     SDL_Init(SDL_INIT_AUDIO);
     InitAudio();
-    AdjustChannelVolume(-1, MIX_MAX_VOLUME/2);
+    AdjustChannelVolume(-1, MIX_MAX_VOLUME);
 
     //Vector to put sounds (music and chunk)
     vector<Mix_Music*> musicList;
