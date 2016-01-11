@@ -174,12 +174,12 @@ int main(int argc, char** argv){
     GLuint displayedTexture = 0;
     bool isSoundDisabled = false;
     glm::vec2 xzPorteScene1 = vec2(42.6, -21.8);
-    glm::vec2 xzVaisseauScene1 = vec2(11.9, 0.0); 
+    glm::vec2 xzVaisseauScene1 = vec2(11.9, 0.0);
     glm::vec2 xzSidiousScene2 = vec2(0.0, -15.0);
 
 
     glm::vec2 xzRobotsScene1 = vec2(30.7, 11.);
-    glm::vec2 xzYodaScene1 = vec2(-8.5, 59.7); 
+    glm::vec2 xzYodaScene1 = vec2(-8.5, 59.7);
     glm::vec2 xzMortSidiousScene2 = vec2(0.0, -15.0);
 
     bool RobotSound = true;
@@ -331,7 +331,6 @@ int main(int argc, char** argv){
             camera.isShiftPressed = false;
         }
 
-         std::cout << scene << "Caméra " << camera.Position.x << ":" << camera.Position.z << " yoda : "<< YodaSound << " C3PO : " << RobotSound << std::endl;
         // ----------------------------- ENTER : Go to next level : TODO : REMOVE IT !!
             if( scene == 1 && (glm::sqrt((camera.Position.x - xzPorteScene1.x)*(camera.Position.x - xzPorteScene1.x)
                   + (camera.Position.z - xzPorteScene1.y)*(camera.Position.z - xzPorteScene1.y)) < 5.) ) {
