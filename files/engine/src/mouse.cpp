@@ -3,6 +3,7 @@
 Mouse::Mouse(){
     lastX = 960;
     lastY = 540;
+    hasJustClick = false;
 }
 
 void Mouse::printMouse(){

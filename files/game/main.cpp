@@ -16,6 +16,7 @@
 #include "engine/mouse.hpp"
 #include "engine/music.hpp"
 #include "engine/texture.hpp"
+#include "engine/menu.hpp"
 // --- Include of STD Extends --- //
 #include <map>
 
@@ -190,17 +191,34 @@ int main(int argc, char** argv){
     // ----------------------------------------------------------
 
     map<string,unique_ptr<HTexture>> map_textures;
-    map_textures["main_menu"].reset(new HTexture(app + "assets/textures/menu/menu_gabarit.png"));
-    map_textures["play_hover"].reset(new HTexture(app + "assets/textures/menu/play_hover.png"));
-
+    map_textures["main_menu"].reset(new HTexture(app + "assets/textures/menu/main_menu.png"));
+    map_textures["play_hover"].reset(new HTexture(app + "assets/textures/menu/main_menu_play.png"));
+    map_textures["sound_hover"].reset(new HTexture(app + "assets/textures/menu/main_menu_sound.png"));
+    map_textures["credit_hover"].reset(new HTexture(app + "assets/textures/menu/main_menu_credit.png"));
+    map_textures["exit_hover"].reset(new HTexture(app + "assets/textures/menu/main_menu_exit.png"));
+    map_textures["main_sound_menu"].reset(new HTexture(app + "assets/textures/menu/sound_gabarit.png"));
+    map_textures["back_sound_menu"].reset(new HTexture(app + "assets/textures/menu/sound_menu_back.png"));
+    map_textures["on_sound_menu"].reset(new HTexture(app + "assets/textures/menu/sound_menu_on.png"));
+    map_textures["off_sound_menu"].reset(new HTexture(app + "assets/textures/menu/sound_menu_off.png"));
+    map_textures["main_credit"].reset(new HTexture(app + "assets/textures/menu/credits_menu.png"));
+    map_textures["back_credit"].reset(new HTexture(app + "assets/textures/menu/credits_menu_back.png"));
+    map_textures["play_menu_back"].reset(new HTexture(app + "assets/textures/menu/play_menu_back.png"));
+    map_textures["play_menu_go"].reset(new HTexture(app + "assets/textures/menu/play_menu_go.png"));
+    map_textures["play_menu_help"].reset(new HTexture(app + "assets/textures/menu/play_menu_help.png"));
+    map_textures["main_menu_play"].reset(new HTexture(app + "assets/textures/menu/menuplay_gabarit.png"));
+    map_textures["main_help"].reset(new HTexture(app + "assets/textures/menu/help_menu.png"));
+    map_textures["back_help"].reset(new HTexture(app + "assets/textures/menu/help_menu_back.png"));
 
         // -------------------------------------------- //
         // ------------- LOOP OF THE MENU ------------- //
         // -------------------------------------------- //
 
+    string page = "home";
+    string action = "";
     bool loop_game = false;
     bool loop_menu = true;
     GLuint displayedTexture;
+
     while(loop_menu){
         // ---------------------------- CHECK IF SDL QUIT
         SDL_Event e;
@@ -219,17 +237,32 @@ int main(int argc, char** argv){
         // ---------------------------- PROCESS MOUSE
         mouse.lastX = windowManager.getMousePosition().x;
         mouse.lastY = windowManager.getMousePosition().y;
+        // ---------------------------- PROCESS MENU ACTION
 
-        mouse.printMouse();
-
-        if(mouse.lastX > 805 && mouse.lastX < 1115 && mouse.lastY > 320 && mouse.lastY < 450){
-            if(windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT)){
-                loop_menu = false;
-                loop_game = true;
-            }
+        if(windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT)){
+            action = processMenuAction(page,mouse);
         }
 
-        displayedTexture = textureToDisplay(map_textures,mouse);
+            //What to do with the flag
+        if(action == "quit"){
+            loop_menu = false;
+            loop_game = false;
+        } else if(action == "play"){
+            loop_menu = false;
+            loop_game = true;
+        } else if(action == "pauseSound"){
+            StopMusic();
+            Mix_RewindMusic();
+        } else if(action == "playSound"){
+            ResumeMusic();
+        }
+
+        action = "";
+
+        if(mouse.hasJustClick && !windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT))
+            mouse.hasJustClick = false;
+
+        displayedTexture = textureToDisplay(page,map_textures,mouse);
 
 
         // ---------------------------- GL CLEAR
