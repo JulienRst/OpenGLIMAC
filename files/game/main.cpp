@@ -15,6 +15,9 @@
 #include "engine/freefly.hpp"
 #include "engine/mouse.hpp"
 #include "engine/music.hpp"
+#include "engine/texture.hpp"
+// --- Include of STD Extends --- //
+#include <map>
 
 
 // -------- NAMESPACE -------------- //
@@ -186,39 +189,10 @@ int main(int argc, char** argv){
     // ------------------------------------ CREATING THE TEXTURES
     // ----------------------------------------------------------
 
-    // MAIN MENU
-    std::unique_ptr<Image> main_menu = loadImage(app + "assets/textures/menu/menu_gabarit.png");
-    if(main_menu != NULL){
-        std::cerr << "Chargement de la main_menu OK" << std::endl;
-    } else {
-        std::cerr << "Echec du chargement de la main_menu" << std::endl;
-    }
-    // GENERATING THE TEXTURE
-    GLuint texturesMenu;
-    glGenTextures(1,&texturesMenu);
-    glBindTexture(GL_TEXTURE_2D,texturesMenu);
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,main_menu->getWidth(),main_menu->getHeight(),0,GL_RGBA,GL_FLOAT,main_menu->getPixels());
-        // APPLYING FILTER
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D,0);
+    map<string,unique_ptr<HTexture>> map_textures;
+    map_textures["main_menu"].reset(new HTexture(app + "assets/textures/menu/menu_gabarit.png"));
+    map_textures["play_hover"].reset(new HTexture(app + "assets/textures/menu/play_hover.png"));
 
-    // PLAY HOVER
-    std::unique_ptr<Image> play_hover = loadImage(app + "assets/textures/menu/play_hover.png");
-    if(play_hover != NULL){
-        std::cerr << "Chargement de la play_hover OK" << std::endl;
-    } else {
-        std::cerr << "Echec du chargement de la play_hover" << std::endl;
-    }
-    // GENERATING THE TEXTURE
-    GLuint texturesPlayHover;
-    glGenTextures(1,&texturesPlayHover);
-    glBindTexture(GL_TEXTURE_2D,texturesPlayHover);
-        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,play_hover->getWidth(),play_hover->getHeight(),0,GL_RGBA,GL_FLOAT,play_hover->getPixels());
-        // APPLYING FILTER
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D,0);
 
         // -------------------------------------------- //
         // ------------- LOOP OF THE MENU ------------- //
@@ -226,7 +200,7 @@ int main(int argc, char** argv){
 
     bool loop_game = false;
     bool loop_menu = true;
-    GLuint displayedTexture = texturesMenu;
+    GLuint displayedTexture;
     while(loop_menu){
         // ---------------------------- CHECK IF SDL QUIT
         SDL_Event e;
@@ -246,15 +220,16 @@ int main(int argc, char** argv){
         mouse.lastX = windowManager.getMousePosition().x;
         mouse.lastY = windowManager.getMousePosition().y;
 
+        mouse.printMouse();
+
         if(mouse.lastX > 805 && mouse.lastX < 1115 && mouse.lastY > 320 && mouse.lastY < 450){
-            displayedTexture = texturesPlayHover;
             if(windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT)){
                 loop_menu = false;
                 loop_game = true;
             }
-        } else {
-            displayedTexture = texturesMenu;
         }
+
+        displayedTexture = textureToDisplay(map_textures,mouse);
 
 
         // ---------------------------- GL CLEAR
@@ -281,7 +256,6 @@ int main(int argc, char** argv){
 
     glDeleteBuffers(1,&vbo);
     glDeleteVertexArrays(1,&vao);
-    glDeleteTextures(1,&texturesMenu);
 
     // Change the main music for the game
 
