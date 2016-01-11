@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <iostream>
 
 using namespace std;
 
@@ -8,4 +9,5 @@ public:
     float lastY;
 
     Mouse();
+    void printMouse();
 };

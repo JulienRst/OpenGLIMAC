@@ -24,7 +24,7 @@ using namespace std;
 using namespace glimac;
 
 
-// -------- VARIABLES --------------//
+// -------- STRUCTURES --------------//
 
 struct Vertex2DUV{
     glm::vec2 position;
@@ -44,6 +44,7 @@ struct Vertex2DUV{
 mat3 scale(float sx, float sy){
 	return mat3(vec3(sx,0.f,0.f),vec3(0.f,sy,0.f),vec3(0.f,0.f,1.f));
 }
+
 // -------- MAIN PROGRAM -------------- //
 
 
@@ -82,7 +83,6 @@ int main(int argc, char** argv){
 
     //Load & Compile Shader
     Shader shader_models(app + "shaders/model_loading.vs", app + "shaders/model_loading.frag");
-    Shader shader_menu(app + "shaders/text2D.vs.glsl", app + "shaders/text2D.fs.glsl");
 
         // -------------------------------------------- //
         // -------------- SOUND VARIABLE -------------- //
@@ -130,21 +130,23 @@ int main(int argc, char** argv){
         // ------------------ MENU -------------------- //
         // -------------------------------------------- //
 
-    shader_menu.Use();
-    GLint id = glGetUniformLocation(shader_menu.Program,"uModelMatrix");
-    cout << "id de uModelMatrix" << id << endl;
-	GLint id_texture = glGetUniformLocation(shader_menu.Program,"uTexture");
-    cout << "id de la texture" << id_texture << endl;
-    //--------- VBO ----------//
+    // ----------------------------------------------------------
+    // ---------------------------------------- CREATING A SQUARE
+    // ----------------------------------------------------------
 
-    //Création d'un seul VBO
+    //Creating new shader
+    Shader shader_menu(app + "shaders/text2D.vs.glsl", app + "shaders/text2D.fs.glsl");
+    shader_menu.Use();
+    //Get Uniform Variable
+    GLint id = glGetUniformLocation(shader_menu.Program,"uModelMatrix");
+	GLint id_texture = glGetUniformLocation(shader_menu.Program,"uTexture");
+
+        //--------- VBO ----------//
+    //Create a VBO
     GLuint vbo;
     glGenBuffers(1,&vbo);
-
-    //Binding d'un VBO sur la cible GL_ARRAY_BUFFER
+    //Binding VBO on GL_ARRAY_BUFFER
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    //On peut à présent modfiier le VBO en passant par la cible GL_ARRAY_BUFFER
-
     //On crée un tableau de GLfloat contenant les coordonnées
     Vertex2DUV vertices[] =  {
         Vertex2DUV(glm::vec2(-1., 1.),glm::vec2(0.f, 0.f)),
@@ -154,106 +156,123 @@ int main(int argc, char** argv){
         Vertex2DUV(glm::vec2(1., -1.),glm::vec2(1.f, 1.f)),
         Vertex2DUV(glm::vec2(-1., -1.),glm::vec2(0., 1.f))
     };
-
-     //On envoie les données au buffer GL_ARRAY_BUFFER (que l'on a bindé précédement)
+    //On envoie les données au buffer GL_ARRAY_BUFFER (que l'on a bindé précédement)
     glBufferData(GL_ARRAY_BUFFER,6 * sizeof(Vertex2DUV), vertices, GL_STATIC_DRAW);
     //Après avoir modifier le buffer on peut le débinder pour éviter de le modifier inutilement
     glBindBuffer(GL_ARRAY_BUFFER,0);
 
-
-    //--------- VAO ----------//
-
+        //--------- VAO ----------//
     //Création d'un VAO
     GLuint vao; //Déclaration
     glGenVertexArrays(1,&vao); //Affectation d'un identifiant
-
     //On va binder le VAO a sa cible (unique donc pas de précision)
     glBindVertexArray(vao);
-
-    //On active l'attribut position
-    //Code plus clair, on passe par une variable d'état
-    const GLuint VERTEX_ATTR_POSITION = 0;
-    const GLuint VERTEX_ATTR_TEXTPOSITION = 1;
-    glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
-    glEnableVertexAttribArray(VERTEX_ATTR_TEXTPOSITION);
-
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    //On spécifie le format de l'attribut de somemt position
-    glVertexAttribPointer(VERTEX_ATTR_POSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, position));
-    glVertexAttribPointer(VERTEX_ATTR_TEXTPOSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, textpos));
-    //On debind le VBO
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    //On debind le VAO
+        //On active l'attribut position & texture position
+        const GLuint VERTEX_ATTR_POSITION = 0;
+        const GLuint VERTEX_ATTR_TEXTPOSITION = 1;
+        glEnableVertexAttribArray(VERTEX_ATTR_POSITION);
+        glEnableVertexAttribArray(VERTEX_ATTR_TEXTPOSITION);
+        //Bind VBO on GL_ARRAY_BUFFER
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+            //Specify to VBO how to treat every VAO he found
+            glVertexAttribPointer(VERTEX_ATTR_POSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, position));
+            glVertexAttribPointer(VERTEX_ATTR_TEXTPOSITION,2,GL_FLOAT,GL_FALSE, sizeof(Vertex2DUV),(const GLvoid*)offsetof(Vertex2DUV, textpos));
+        //On debind le VBO
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        //On debind le VAO
     glBindVertexArray(0);
 
+    // ----------------------------------------------------------
+    // ------------------------------------ CREATING THE TEXTURES
+    // ----------------------------------------------------------
+
+    // MAIN MENU
     std::unique_ptr<Image> main_menu = loadImage(app + "assets/textures/menu/menu_gabarit.png");
-
     if(main_menu != NULL){
-        std::cout << "Chargement de la main_menu OK" << std::endl;
+        std::cerr << "Chargement de la main_menu OK" << std::endl;
     } else {
-        std::cout << "Echec du chargement de la main_menu" << std::endl;
+        std::cerr << "Echec du chargement de la main_menu" << std::endl;
     }
-
+    // GENERATING THE TEXTURE
     GLuint texturesMenu;
     glGenTextures(1,&texturesMenu);
     glBindTexture(GL_TEXTURE_2D,texturesMenu);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,main_menu->getWidth(),main_menu->getHeight(),0,GL_RGBA,GL_FLOAT,main_menu->getPixels());
-
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,main_menu->getWidth(),main_menu->getHeight(),0,GL_RGBA,GL_FLOAT,main_menu->getPixels());
+        // APPLYING FILTER
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D,0);
 
-    int loop_game = false;
-    int loop_menu = true;
+    // PLAY HOVER
+    std::unique_ptr<Image> play_hover = loadImage(app + "assets/textures/menu/play_hover.png");
+    if(play_hover != NULL){
+        std::cerr << "Chargement de la play_hover OK" << std::endl;
+    } else {
+        std::cerr << "Echec du chargement de la play_hover" << std::endl;
+    }
+    // GENERATING THE TEXTURE
+    GLuint texturesPlayHover;
+    glGenTextures(1,&texturesPlayHover);
+    glBindTexture(GL_TEXTURE_2D,texturesPlayHover);
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,play_hover->getWidth(),play_hover->getHeight(),0,GL_RGBA,GL_FLOAT,play_hover->getPixels());
+        // APPLYING FILTER
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D,0);
+
         // -------------------------------------------- //
-        // ----------- LOOP OF THE PROGRAM ------------ //
+        // ------------- LOOP OF THE MENU ------------- //
         // -------------------------------------------- //
 
+    bool loop_game = false;
+    bool loop_menu = true;
+    GLuint displayedTexture = texturesMenu;
     while(loop_menu){
         // ---------------------------- CHECK IF SDL QUIT
         SDL_Event e;
         while(windowManager.pollEvent(e)) {
             if(e.type == SDL_QUIT) {
                 loop_menu = false;
-                loop_game = false; // Leave the loop after this iteration
-                std::cout << "SDL_Quit : loop_menu = " << loop_menu << std::endl;
-                std::cout << "SDL_Quit : loop_game = " << loop_game << std::endl;
+                loop_game = false;
             }
         }
-
-        // ---------------------------- GL CLEAR
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // ---------------------------- LAUNCH OF SHADDER
-        shader_menu.Use();
-
-            // ---------------------------------------------
-            // ---------------------------- PROCESS KEYBOARD
-            // ---------------------------------------------
-
-        // ----------------------------- ENTER : Go to GAME : TODO : REMOVE IT !!
+        // ---------------------------- PROCESS MENU::PLAY
         if(windowManager.isKeyPressed(SDLK_RETURN)){
             loop_menu = false;
             loop_game = true;
         }
 
+        // ---------------------------- PROCESS MOUSE
+        mouse.lastX = windowManager.getMousePosition().x;
+        mouse.lastY = windowManager.getMousePosition().y;
+
+        if(mouse.lastX > 805 && mouse.lastX < 1115 && mouse.lastY > 320 && mouse.lastY < 450){
+            displayedTexture = texturesPlayHover;
+            if(windowManager.isMouseButtonPressed(SDL_BUTTON_LEFT)){
+                loop_menu = false;
+                loop_game = true;
+            }
+        } else {
+            displayedTexture = texturesMenu;
+        }
+
+
+        // ---------------------------- GL CLEAR
+        glClearColor(0.05f, 0.05f, 0.05f, 1.0f),
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // ---------------------------- LAUNCH OF SHADDER
+        shader_menu.Use();
+
             // ---------------------------------------------
-            // --------------------------------- SEND MATRIX
+            // -------------------------- DRAW + SEND MATRIX
             // ---------------------------------------------
 
-        // ---------------------------- On veut faire le menu
-        // On rebind notre VAO
         glBindVertexArray(vao);
-        glBindTexture(GL_TEXTURE_2D,texturesMenu);
-        glUniform1i(id_texture,0);
-            glUniformMatrix3fv(id,1,GL_FALSE,glm::value_ptr(glm::mat3()));
-            // On dessine en précisant ce que l'on dessine, puis où l'on commence, puis combien de valeurs on utilise
-            glDrawArrays(GL_TRIANGLES,0,6);
-        // On debind notre VAO
-        glBindTexture(GL_TEXTURE_2D,0);
+            glBindTexture(GL_TEXTURE_2D,displayedTexture);
+                glUniform1i(id_texture,0);
+                glUniformMatrix3fv(id,1,GL_FALSE,glm::value_ptr(glm::mat3()));
+                glDrawArrays(GL_TRIANGLES,0,6);
+            glBindTexture(GL_TEXTURE_2D,0);
         glBindVertexArray(0);
 
         // ---------------------------- SWAP THE BUFFERS
@@ -264,12 +283,17 @@ int main(int argc, char** argv){
     glDeleteVertexArrays(1,&vao);
     glDeleteTextures(1,&texturesMenu);
 
+    // Change the main music for the game
+
     PlayMusic(musicList[1], -1); // -1 to load at infinity
     // Initialize Models
     map<int, unique_ptr<Model> > models = modelsFromFile(app + FilePath("assets/models/models.txt"));
 
+        // -------------------------------------------- //
+        // ------------- LOOP OF THE GAME ------------- //
+        // -------------------------------------------- //
 
-    while(loop_game == true){
+    while(loop_game){
         // ---------------------------- CHECK IF SDL QUIT
         SDL_Event e;
         while(windowManager.pollEvent(e)) {
@@ -347,6 +371,7 @@ int main(int argc, char** argv){
         // ---------------------------------------------
         // --------------------------------- SEND MATRIX
         // ---------------------------------------------
+
         // ---------------------------- GET THE VIEW MATRIX FROM CAMERA
         viewMatrix = camera.GetViewMatrix();
         // ---------------------------- TRANSFORM THE MATRIX AND SEND THEMP
@@ -367,6 +392,7 @@ int main(int argc, char** argv){
     FreeMusic(musicList[0]);
     QuitAudio();
     SDL_Quit();
+
     std::cout << "EXIT_SUCCESS" << std::endl;
 
     return EXIT_SUCCESS;

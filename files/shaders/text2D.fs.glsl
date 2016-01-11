@@ -7,5 +7,5 @@ uniform sampler2D uTexture;
 out vec3 fFragColor;
 
 void main() {
-	fFragColor = texture(uTexture,vFragTextCoord).rgb;
+	fFragColor = texture(uTexture,vFragTextCoord).xyz;
 };
